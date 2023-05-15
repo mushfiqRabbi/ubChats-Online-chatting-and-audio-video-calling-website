@@ -1,7 +1,18 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import useAuthContext from "@/context/authContext";
+
 export default function Chats() {
-  return (
-    <div className="p-4">
-      <h2>Hello from Page</h2>
-    </div>
-  );
+  const { user } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/signin");
+    }
+  });
+
+  return <div>Hello from Chats</div>;
 }

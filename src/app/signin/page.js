@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import app from "../Firebase/config";
+import app from "../../Firebase/config";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 const auth = getAuth(app);
+const user = auth.currentUser;
 
 export default function SignIn() {
   const email = useRef(null);
@@ -11,6 +12,7 @@ export default function SignIn() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(user);
     signInWithEmailAndPassword(
       auth,
       email.current.value,
@@ -18,7 +20,6 @@ export default function SignIn() {
     )
       .then((userCredential) => {
         // Signed in
-        const user = userCredential.user;
         console.log(user);
         // ...
       })
