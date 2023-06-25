@@ -14,6 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function App(): JSX.Element {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+  console.log(user);
   const authLoading = useAppSelector((state) => state.auth.authLoading);
   const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -32,12 +33,15 @@ export default function App(): JSX.Element {
         <Route
           path="/"
           element={
-            !authLoading &&
-            (!user ? (
-              <Navigate to="/login-register" replace />
+            !authLoading ? (
+              !user ? (
+                <Navigate to="/login-register" replace />
+              ) : (
+                <h1>Home page</h1>
+              )
             ) : (
-              <h1>Home page</h1>
-            ))
+              ""
+            )
           }
         ></Route>
         <Route
@@ -48,7 +52,12 @@ export default function App(): JSX.Element {
             </div>
           }
         ></Route>
-        <Route path="/login-register" element={<LoginRegister />}></Route>
+        <Route
+          path="/login-register"
+          element={
+            !authLoading ? user ? <Navigate to="/" /> : <LoginRegister /> : ""
+          }
+        ></Route>
       </Routes>
       <ToastContainer />
     </div>
