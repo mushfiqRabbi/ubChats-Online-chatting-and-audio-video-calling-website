@@ -3,23 +3,21 @@ import LoginRegister from "./components/LoginRegister/LoginRegister";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebaseConfig";
-import { useDispatch } from "react-redux";
 import { setUser } from "./redux/features/authentication/authenticationSlice";
-import { useSelector } from "react-redux";
-import { logOutUser } from "./redux/features/authentication/authenticationSlice";
+import { useAppDispatch, useAppSelector } from "./hooks/hooks";
+import { signOutUser } from "./redux/features/authentication/authenticationSlice";
 // import { signOut } from "firebase/auth";
 // import { auth } from "./firebase/firebaseConfig";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const authLoading = useSelector((state) => state.auth.authLoading);
-
-  console.log(user);
-
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  const authLoading = useAppSelector((state) => state.auth.authLoading);
   const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    dispatch(logOutUser());
+    dispatch(signOutUser());
   };
 
   useEffect(() => {
@@ -29,27 +27,30 @@ export default function App() {
     });
   }, []);
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          !authLoading &&
-          (!user ? (
-            <Navigate to="/login-register" replace />
-          ) : (
-            <h1>Home page</h1>
-          ))
-        }
-      ></Route>
-      <Route
-        path="/logout"
-        element={
-          <div>
-            <button onClick={handleLogout}>logout</button>
-          </div>
-        }
-      ></Route>
-      <Route path="/login-register" element={<LoginRegister />}></Route>
-    </Routes>
+    <div>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            !authLoading &&
+            (!user ? (
+              <Navigate to="/login-register" replace />
+            ) : (
+              <h1>Home page</h1>
+            ))
+          }
+        ></Route>
+        <Route
+          path="/logout"
+          element={
+            <div>
+              <button onClick={handleLogout}>logout</button>
+            </div>
+          }
+        ></Route>
+        <Route path="/login-register" element={<LoginRegister />}></Route>
+      </Routes>
+      <ToastContainer />
+    </div>
   );
 }
