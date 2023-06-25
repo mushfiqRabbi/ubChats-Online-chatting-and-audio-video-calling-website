@@ -11,7 +11,7 @@ import { signOutUser } from "./redux/features/authentication/authenticationSlice
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function App() {
+export default function App(): JSX.Element {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const authLoading = useAppSelector((state) => state.auth.authLoading);

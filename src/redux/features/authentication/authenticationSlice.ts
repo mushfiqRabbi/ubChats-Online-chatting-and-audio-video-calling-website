@@ -12,10 +12,8 @@ interface SignInData {
   email: string;
   password: string;
 }
-interface SignUpData {
+interface SignUpData extends SignInData {
   fullName: string;
-  email: string;
-  password: string;
 }
 
 export const signInUser = createAsyncThunk(
@@ -32,6 +30,7 @@ export const signInUser = createAsyncThunk(
     }
   }
 );
+
 export const signUpUser = createAsyncThunk(
   "authentication/signUpUser",
   async (user: SignUpData) => {
@@ -58,6 +57,10 @@ export const signOutUser = createAsyncThunk(
   }
 );
 
+let signInToast: string | number;
+let signUpToast: string | number;
+let signOutToast: string | number;
+
 export const authenticationSlice = createSlice({
   name: "authentication",
   initialState: {
@@ -74,70 +77,84 @@ export const authenticationSlice = createSlice({
     builder
       .addCase(signInUser.pending, (state) => {
         state.authLoading = true;
-        toast.info("SIGNING IN!");
+        signInToast = toast.loading("LOGGING IN...");
       })
       .addCase(signInUser.fulfilled, (state) => {
         state.authLoading = false;
         // console.log(action);
-        toast.success("LOGIN SUCCESSFUL!");
+        toast.update(signInToast, {
+          render: "LOGIN SUCCESSFUL!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
       })
       .addCase(signInUser.rejected, (state, action) => {
         state.authLoading = false;
-        toast.error(
-          action.error.message
-            ?.slice(action.error.message?.indexOf("/") + 1, -2)
-            .replace(/-/gi, " ")
-            .toUpperCase() + "!"
-        );
-        // console.log(
-        //   action.error.message
-        //     ?.slice(action.error.message?.indexOf("/") + 1, -2)
-        //     .replace(/-/gi, " ")
-        //     .toUpperCase()
-        // );
+        toast.update(signInToast, {
+          render:
+            action.error.message
+              ?.slice(action.error.message?.indexOf("/") + 1, -2)
+              .replace(/-/gi, " ")
+              .toUpperCase() + "!",
+          type: "error",
+          isLoading: false,
+          autoClose: 2000,
+        });
       })
       .addCase(signUpUser.pending, (state) => {
         state.authLoading = true;
-        toast.info("SIGNING UP...");
+        signUpToast = toast.loading("SIGNING UP...");
       })
       .addCase(signUpUser.fulfilled, (state) => {
         state.authLoading = false;
         // console.log(action);
-        toast.success("SIGNUP SUCCESSFUL!");
+        toast.update(signUpToast, {
+          render: "SIGNUP SUCCESSFUL!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
       })
       .addCase(signUpUser.rejected, (state, action) => {
         state.authLoading = false;
-        toast.error(
-          action.error.message
-            ?.slice(action.error.message?.indexOf("/") + 1, -2)
-            .replace(/-/gi, " ")
-            .toUpperCase() + "!"
-        );
-        // console.log(
-        //   action.error.message
-        //     ?.slice(action.error.message?.indexOf("/") + 1, -2)
-        //     .replace(/-/gi, " ")
-        //     .toUpperCase()
-        // );
+        toast.update(signUpToast, {
+          render:
+            action.error.message
+              ?.slice(action.error.message?.indexOf("/") + 1, -2)
+              .replace(/-/gi, " ")
+              .toUpperCase() + "!",
+          type: "error",
+          isLoading: false,
+          autoClose: 2000,
+        });
       })
       .addCase(signOutUser.pending, (state) => {
         state.authLoading = true;
-        toast.info("SINGING OUT!");
+        signOutToast = toast.loading("SINGING OUT...");
       })
-      .addCase(signOutUser.fulfilled, (state, action) => {
+      .addCase(signOutUser.fulfilled, (state) => {
         state.authLoading = false;
         // console.log(action);
-        toast.success("SIGNING OUT SUCCESSFUL!");
+        toast.update(signOutToast, {
+          render: "SIGNING OUT SUCCESSFUL!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
       })
       .addCase(signOutUser.rejected, (state, action) => {
         state.authLoading = false;
-        console.log(action);
-        toast.error(
-          action.error.message
-            ?.slice(action.error.message?.indexOf("/") + 1, -2)
-            .replace(/-/gi, " ")
-            .toUpperCase() + "!"
-        );
+        toast.update(signOutToast, {
+          render:
+            action.error.message
+              ?.slice(action.error.message?.indexOf("/") + 1, -2)
+              .replace(/-/gi, " ")
+              .toUpperCase() + "!",
+          type: "error",
+          isLoading: false,
+          autoClose: 2000,
+        });
       });
   },
 });
