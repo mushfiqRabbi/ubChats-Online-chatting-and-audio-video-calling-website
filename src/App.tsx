@@ -6,14 +6,14 @@ import { auth } from "./firebase/firebaseConfig";
 import { setUser } from "./redux/features/authentication/authenticationSlice";
 import { useAppDispatch, useAppSelector } from "./hooks/hooks";
 import { signOutUser } from "./redux/features/authentication/authenticationSlice";
-// import { signOut } from "firebase/auth";
-// import { auth } from "./firebase/firebaseConfig";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Home from "./components/LoginRegister/Home";
 
 export default function App(): JSX.Element {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+
   console.log(user);
   const authLoading = useAppSelector((state) => state.auth.authLoading);
   const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -37,7 +37,7 @@ export default function App(): JSX.Element {
               !user ? (
                 <Navigate to="/login-register" replace />
               ) : (
-                <h1>Home page</h1>
+                <Home />
               )
             ) : (
               ""
