@@ -12,7 +12,19 @@ export default function Home() {
   const chatBoxFooterRef = useRef<HTMLDivElement>(null);
   const chatBoxMessagesRef = useRef<HTMLDivElement>(null);
 
+  if (chatBoxMessagesRef.current) {
+    chatBoxMessagesRef.current.scrollTop = Math.round(
+      chatBoxMessagesRef.current.scrollHeight +
+        chatBoxMessagesRef.current.clientHeight
+    );
+    // console.log(
+    //   chatBoxMessagesRef.current.scrollHeight +
+    //     chatBoxMessagesRef.current.clientHeight
+    // );
+  }
+
   useEffect(() => {
+    const height = window.innerHeight;
     if (
       chatsRef.current &&
       chatBoxMessagesRef.current &&
@@ -20,19 +32,16 @@ export default function Home() {
       chatBoxHeaderRef.current
     ) {
       setChatsHeight(
-        window.innerHeight -
-          Math.round(chatsRef.current.getBoundingClientRect().top - 25)
+        height - Math.round(chatsRef.current.getBoundingClientRect().top - 25)
       );
       setCb(
-        window.innerHeight -
+        height -
           (Math.round(chatBoxHeaderRef.current.getBoundingClientRect().top) +
             Math.round(
               chatBoxFooterRef.current.getBoundingClientRect().height
             ) *
               2)
       );
-      chatBoxMessagesRef.current.scrollTop =
-        chatBoxMessagesRef.current.scrollHeight;
     }
   }, []);
 
@@ -98,7 +107,7 @@ export default function Home() {
                   ref={chatsRef}
                   style={{
                     maxHeight: `${chatsHeight}px`,
-                    overflowY: "scroll",
+                    overflowY: "auto",
                   }}
                 >
                   <a
@@ -366,7 +375,7 @@ export default function Home() {
                     ref={chatBoxMessagesRef}
                     style={{
                       height: "100%",
-                      overflowY: "scroll",
+                      overflowY: "auto",
                     }}
                   >
                     <div className="pb-4 chat-message-right">
