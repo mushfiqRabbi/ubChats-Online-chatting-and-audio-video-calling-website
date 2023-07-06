@@ -2,28 +2,22 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import "./Home.css";
 import { useRef } from "react";
 import { useState } from "react";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
 export default function Home() {
-  const [cb, setCb] = useState(0);
+  const [chatBoxMessagesHeight, setChatBoxMessagesHeight] = useState(0);
   const [chatsHeight, setChatsHeight] = useState(0);
+  const [scrollHeight, setScrollHeight] = useState<number>(0);
   const chatsRef = useRef<HTMLDivElement>(null);
   const chatBoxHeaderRef = useRef<HTMLDivElement>(null);
   const chatBoxFooterRef = useRef<HTMLDivElement>(null);
   const chatBoxMessagesRef = useRef<HTMLDivElement>(null);
 
-  if (chatBoxMessagesRef.current) {
-    chatBoxMessagesRef.current.scrollTop = Math.round(
-      chatBoxMessagesRef.current.scrollHeight +
-        chatBoxMessagesRef.current.clientHeight
-    );
-    // console.log(
-    //   chatBoxMessagesRef.current.scrollHeight +
-    //     chatBoxMessagesRef.current.clientHeight
-    // );
+  if (scrollHeight && chatBoxMessagesRef.current) {
+    chatBoxMessagesRef.current.scrollTop = scrollHeight;
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const height = window.innerHeight;
     if (
       chatsRef.current &&
@@ -32,16 +26,21 @@ export default function Home() {
       chatBoxHeaderRef.current
     ) {
       setChatsHeight(
-        height - Math.round(chatsRef.current.getBoundingClientRect().top - 25)
+        height - Math.round(chatsRef.current.getBoundingClientRect().top)
       );
-      setCb(
+      setChatBoxMessagesHeight(
         height -
           (Math.round(chatBoxHeaderRef.current.getBoundingClientRect().top) +
             Math.round(
-              chatBoxFooterRef.current.getBoundingClientRect().height
-            ) *
-              2)
+              chatBoxFooterRef.current.getBoundingClientRect().height +
+                chatBoxFooterRef.current.getBoundingClientRect().height
+            ))
       );
+      setTimeout(() => {
+        if (chatBoxMessagesRef.current) {
+          setScrollHeight(chatBoxMessagesRef.current?.scrollHeight);
+        }
+      }, 100);
     }
   }, []);
 
@@ -367,7 +366,7 @@ export default function Home() {
                   className=""
                   style={{
                     flexGrow: "1",
-                    height: `${cb}px`,
+                    height: `${chatBoxMessagesHeight}px`,
                   }}
                 >
                   <div
@@ -376,248 +375,252 @@ export default function Home() {
                     style={{
                       height: "100%",
                       overflowY: "auto",
+                      visibility: `${scrollHeight ? "visible" : "hidden"}`,
                     }}
                   >
-                    <div className="pb-4 chat-message-right">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                          className="mr-1 rounded-circle"
-                          alt="Chris Wood"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:33 am
+                    <div>
+                      <div className="pb-4 chat-message-right">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                            className="mr-1 rounded-circle"
+                            alt="Chris Wood"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:33 am
+                          </div>
+                        </div>
+                        <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">You</div>
+                          Lorem ipsum dolor sit amet, vis erat denique in,
+                          dicunt prodesset te vix.
                         </div>
                       </div>
-                      <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">You</div>
-                        Lorem ipsum dolor sit amet, vis erat denique in, dicunt
-                        prodesset te vix.
-                      </div>
-                    </div>
-                    <div className="pb-4 chat-message-left">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          className="mr-1 rounded-circle"
-                          alt="Sharon Lessman"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:34 am
+                      <div className="pb-4 chat-message-left">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                            className="mr-1 rounded-circle"
+                            alt="Sharon Lessman"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:34 am
+                          </div>
+                        </div>
+                        <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">
+                            Sharon Lessman
+                          </div>
+                          Sit meis deleniti eu, pri vidit meliore docendi ut, an
+                          eum erat animal commodo.
                         </div>
                       </div>
-                      <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">
-                          Sharon Lessman
+                      <div className="mb-4 chat-message-right">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                            className="mr-1 rounded-circle"
+                            alt="Chris Wood"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:35 am
+                          </div>
                         </div>
-                        Sit meis deleniti eu, pri vidit meliore docendi ut, an
-                        eum erat animal commodo.
-                      </div>
-                    </div>
-                    <div className="mb-4 chat-message-right">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                          className="mr-1 rounded-circle"
-                          alt="Chris Wood"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:35 am
+                        <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">You</div>
+                          Cum ea graeci tractatos.
                         </div>
                       </div>
-                      <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">You</div>
-                        Cum ea graeci tractatos.
-                      </div>
-                    </div>
-                    <div className="pb-4 chat-message-left">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          className="mr-1 rounded-circle"
-                          alt="Sharon Lessman"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:36 am
+                      <div className="pb-4 chat-message-left">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                            className="mr-1 rounded-circle"
+                            alt="Sharon Lessman"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:36 am
+                          </div>
+                        </div>
+                        <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">
+                            Sharon Lessman
+                          </div>
+                          Sed pulvinar, massa vitae interdum pulvinar, risus
+                          lectus porttitor magna, vitae commodo lectus mauris et
+                          velit. Proin ultricies placerat imperdiet. Morbi
+                          varius quam ac venenatis tempus.
                         </div>
                       </div>
-                      <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">
-                          Sharon Lessman
+                      <div className="pb-4 chat-message-left">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                            className="mr-1 rounded-circle"
+                            alt="Sharon Lessman"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:37 am
+                          </div>
                         </div>
-                        Sed pulvinar, massa vitae interdum pulvinar, risus
-                        lectus porttitor magna, vitae commodo lectus mauris et
-                        velit. Proin ultricies placerat imperdiet. Morbi varius
-                        quam ac venenatis tempus.
-                      </div>
-                    </div>
-                    <div className="pb-4 chat-message-left">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          className="mr-1 rounded-circle"
-                          alt="Sharon Lessman"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:37 am
+                        <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">
+                            Sharon Lessman
+                          </div>
+                          Cras pulvinar, sapien id vehicula aliquet, diam velit
+                          elementum orci.
                         </div>
                       </div>
-                      <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">
-                          Sharon Lessman
+                      <div className="mb-4 chat-message-right">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                            className="mr-1 rounded-circle"
+                            alt="Chris Wood"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:38 am
+                          </div>
                         </div>
-                        Cras pulvinar, sapien id vehicula aliquet, diam velit
-                        elementum orci.
-                      </div>
-                    </div>
-                    <div className="mb-4 chat-message-right">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                          className="mr-1 rounded-circle"
-                          alt="Chris Wood"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:38 am
+                        <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">You</div>
+                          Lorem ipsum dolor sit amet, vis erat denique in,
+                          dicunt prodesset te vix.
                         </div>
                       </div>
-                      <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">You</div>
-                        Lorem ipsum dolor sit amet, vis erat denique in, dicunt
-                        prodesset te vix.
-                      </div>
-                    </div>
-                    <div className="pb-4 chat-message-left">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          className="mr-1 rounded-circle"
-                          alt="Sharon Lessman"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:39 am
+                      <div className="pb-4 chat-message-left">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                            className="mr-1 rounded-circle"
+                            alt="Sharon Lessman"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:39 am
+                          </div>
+                        </div>
+                        <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">
+                            Sharon Lessman
+                          </div>
+                          Sit meis deleniti eu, pri vidit meliore docendi ut, an
+                          eum erat animal commodo.
                         </div>
                       </div>
-                      <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">
-                          Sharon Lessman
+                      <div className="mb-4 chat-message-right">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                            className="mr-1 rounded-circle"
+                            alt="Chris Wood"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:40 am
+                          </div>
                         </div>
-                        Sit meis deleniti eu, pri vidit meliore docendi ut, an
-                        eum erat animal commodo.
-                      </div>
-                    </div>
-                    <div className="mb-4 chat-message-right">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                          className="mr-1 rounded-circle"
-                          alt="Chris Wood"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:40 am
+                        <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">You</div>
+                          Cum ea graeci tractatos.
                         </div>
                       </div>
-                      <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">You</div>
-                        Cum ea graeci tractatos.
-                      </div>
-                    </div>
-                    <div className="mb-4 chat-message-right">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                          className="mr-1 rounded-circle"
-                          alt="Chris Wood"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:41 am
+                      <div className="mb-4 chat-message-right">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                            className="mr-1 rounded-circle"
+                            alt="Chris Wood"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:41 am
+                          </div>
+                        </div>
+                        <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">You</div>
+                          Morbi finibus, lorem id placerat ullamcorper, nunc
+                          enim ultrices massa, id dignissim metus urna eget
+                          purus.
                         </div>
                       </div>
-                      <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">You</div>
-                        Morbi finibus, lorem id placerat ullamcorper, nunc enim
-                        ultrices massa, id dignissim metus urna eget purus.
-                      </div>
-                    </div>
-                    <div className="pb-4 chat-message-left">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          className="mr-1 rounded-circle"
-                          alt="Sharon Lessman"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:42 am
+                      <div className="pb-4 chat-message-left">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                            className="mr-1 rounded-circle"
+                            alt="Sharon Lessman"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:42 am
+                          </div>
+                        </div>
+                        <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">
+                            Sharon Lessman
+                          </div>
+                          Sed pulvinar, massa vitae interdum pulvinar, risus
+                          lectus porttitor magna, vitae commodo lectus mauris et
+                          velit. Proin ultricies placerat imperdiet. Morbi
+                          varius quam ac venenatis tempus.
                         </div>
                       </div>
-                      <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">
-                          Sharon Lessman
+                      <div className="mb-4 chat-message-right">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                            className="mr-1 rounded-circle"
+                            alt="Chris Wood"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:43 am
+                          </div>
                         </div>
-                        Sed pulvinar, massa vitae interdum pulvinar, risus
-                        lectus porttitor magna, vitae commodo lectus mauris et
-                        velit. Proin ultricies placerat imperdiet. Morbi varius
-                        quam ac venenatis tempus.
-                      </div>
-                    </div>
-                    <div className="mb-4 chat-message-right">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                          className="mr-1 rounded-circle"
-                          alt="Chris Wood"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:43 am
+                        <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">You</div>
+                          Lorem ipsum dolor sit amet, vis erat denique in,
+                          dicunt prodesset te vix.
                         </div>
                       </div>
-                      <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">You</div>
-                        Lorem ipsum dolor sit amet, vis erat denique in, dicunt
-                        prodesset te vix.
-                      </div>
-                    </div>
-                    <div className="pb-4 chat-message-left">
-                      <div>
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          className="mr-1 rounded-circle"
-                          alt="Sharon Lessman"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="mt-2 text-muted small text-nowrap">
-                          2:44 am
+                      <div className="pb-4 chat-message-left">
+                        <div>
+                          <img
+                            src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                            className="mr-1 rounded-circle"
+                            alt="Sharon Lessman"
+                            width={40}
+                            height={40}
+                          />
+                          <div className="mt-2 text-muted small text-nowrap">
+                            2:44 am
+                          </div>
                         </div>
-                      </div>
-                      <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
-                        <div className="mb-1 font-weight-bold">
-                          Sharon Lessman
+                        <div className="px-3 py-2 ml-3 rounded flex-shrink-1 bg-light">
+                          <div className="mb-1 font-weight-bold">
+                            Sharon Lessman
+                          </div>
+                          Sit meis deleniti eu, pri vidit meliore docendi ut, an
+                          eum erat animal commodo.
                         </div>
-                        Sit meis deleniti eu, pri vidit meliore docendi ut, an
-                        eum erat animal commodo.
                       </div>
                     </div>
                   </div>
