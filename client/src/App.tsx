@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import LoginRegister from "./components/LoginRegister/LoginRegister";
+import LoginRegister from "./components/login_register_page/LoginRegister";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebaseConfig";
@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from "./hooks/hooks";
 import { signOutUser } from "./redux/features/authentication/authenticationSlice";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Home from "./components/LoginRegister/Home";
+import Home from "./components/home_page/Home";
 
 export default function App(): JSX.Element {
   const dispatch = useAppDispatch();
