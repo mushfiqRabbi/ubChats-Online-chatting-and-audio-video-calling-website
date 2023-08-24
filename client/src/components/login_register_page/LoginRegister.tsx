@@ -1,11 +1,11 @@
 import "./LoginRegister.css";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useAppDispatch } from "../../hooks/hooks";
+import auth from "../../firebase/firebaseConfig";
 import {
-  signInUser,
-  signUpUser,
-} from "../../redux/features/authentication/authenticationSlice";
+  useAuthSignInWithEmailAndPassword,
+  useAuthCreateUserWithEmailAndPassword,
+} from "@react-query-firebase/auth";
 
 type SignUpInputs = {
   fullName: string;
@@ -19,7 +19,6 @@ type SignInInputs = {
 };
 
 export default function LoginRegister() {
-  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
@@ -32,13 +31,21 @@ export default function LoginRegister() {
     // watch: watchIn,
     formState: { errors: errorsIn },
   } = useForm<SignInInputs>();
+  const singInMutation = useAuthSignInWithEmailAndPassword(auth, {
+    onError(error) {
+      console.log(error);
+    },
+  });
+  const signUpMutation = useAuthCreateUserWithEmailAndPassword(auth, {
+    onError(error) {
+      console.log(error);
+    },
+  });
   const handleSignUp: SubmitHandler<SignUpInputs> = (data) => {
-    // console.log(data);
-    dispatch(signUpUser(data));
+    signUpMutation.mutate(data);
   };
   const handleSignIn: SubmitHandler<SignInInputs> = (data) => {
-    // console.log(data);
-    dispatch(signInUser(data));
+    singInMutation.mutate(data);
   };
   return (
     <HelmetProvider>

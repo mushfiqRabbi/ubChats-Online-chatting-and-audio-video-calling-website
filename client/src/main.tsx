@@ -3,21 +3,17 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
-import store from "./redux/store.ts";
-import { Provider } from "react-redux";
-import { io } from "socket.io-client";
-const socket = io("http://localhost:3000/");
+import { QueryClient } from "react-query";
+import { QueryClientProvider } from "react-query";
 
-socket.on("connect", () => {
-  console.log(socket.connected); // true
-});
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
         <App />
-      </Provider>
+      </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

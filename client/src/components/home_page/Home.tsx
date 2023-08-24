@@ -2,9 +2,14 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import "./Home.css";
 import { useRef } from "react";
 import { useState } from "react";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useEffect } from "react";
+// import { socket } from "../../utils/socket";
+import { io } from "socket.io-client";
+import { useAuthUser } from "@react-query-firebase/auth";
+import auth from "../../firebase/firebaseConfig";
 
 export default function Home() {
+  const { data: user } = useAuthUser(["user"], auth);
   const [chatBoxMessagesHeight, setChatBoxMessagesHeight] = useState(0);
   const [chatsHeight, setChatsHeight] = useState(0);
   const [scrollHeight, setScrollHeight] = useState<number>(0);
@@ -16,6 +21,13 @@ export default function Home() {
   if (scrollHeight && chatBoxMessagesRef.current) {
     chatBoxMessagesRef.current.scrollTop = scrollHeight;
   }
+
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+    socket.on("connect", () => {
+      console.log("working");
+    });
+  }, []);
 
   useLayoutEffect(() => {
     const height = window.innerHeight;

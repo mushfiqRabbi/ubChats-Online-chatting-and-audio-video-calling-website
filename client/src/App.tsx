@@ -1,49 +1,29 @@
 import { useEffect } from "react";
 import LoginRegister from "./components/login_register_page/LoginRegister";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase/firebaseConfig";
-import { setUser } from "./redux/features/authentication/authenticationSlice";
-import { useAppDispatch, useAppSelector } from "./hooks/hooks";
-import { signOutUser } from "./redux/features/authentication/authenticationSlice";
+import auth from "./firebase/firebaseConfig";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./components/home_page/Home";
+import { useAuthSignOut } from "@react-query-firebase/auth";
 
 export default function App(): JSX.Element {
-  const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.auth.user);
-
-  console.log(user);
-  const authLoading = useAppSelector((state) => state.auth.authLoading);
+  const signOutMutation = useAuthSignOut(auth);
   const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    dispatch(signOutUser());
+    signOutMutation.mutate();
   };
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      // console.log("here");
-      dispatch(setUser(JSON.stringify(user)));
+      console.log(user);
     });
   }, []);
   return (
     <div>
       <Routes>
-        <Route
-          path="/"
-          element={
-            !authLoading ? (
-              !user ? (
-                <Navigate to="/login-register" replace />
-              ) : (
-                <Home />
-              )
-            ) : (
-              ""
-            )
-          }
-        ></Route>
+        <Route path="/" element={<Home />}></Route>
         <Route
           path="/logout"
           element={
@@ -52,12 +32,7 @@ export default function App(): JSX.Element {
             </div>
           }
         ></Route>
-        <Route
-          path="/login-register"
-          element={
-            !authLoading ? user ? <Navigate to="/" /> : <LoginRegister /> : ""
-          }
-        ></Route>
+        <Route path="/login-register" element={<LoginRegister />}></Route>
       </Routes>
       <ToastContainer />
     </div>
