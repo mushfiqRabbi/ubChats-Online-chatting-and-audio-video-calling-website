@@ -17,12 +17,11 @@ const ioServer = new Server(server, {
 //   })
 // );
 
-app.get("/", (req, res) => {
-  res.json("hit");
-});
-
 ioServer.on("connection", (socket) => {
   console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("a user disconnected");
+  });
 });
 
 server.listen(3000, () => {

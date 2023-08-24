@@ -17,7 +17,7 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      console.log(user);
+      console.log("user : ", user);
     });
   }, []);
   return (
