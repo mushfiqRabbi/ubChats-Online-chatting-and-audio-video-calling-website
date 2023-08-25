@@ -1,60 +1,46 @@
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import "./Home.css";
-import { useRef } from "react";
-import { useState } from "react";
-import { useLayoutEffect, useEffect } from "react";
+// import "./Home.css";
+import { useEffect, useRef, useLayoutEffect } from "react";
 // import { socket } from "../../utils/socket";
 import { io } from "socket.io-client";
 import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
+import { useQuery } from "react-query";
+import axios from "axios";
+
+const getAllUsers = async () => {
+  const response = await axios.get("http://localhost:3000/api/users");
+  return response.data.users;
+};
 
 export default function Home() {
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { data: user } = useAuthUser(["user"], auth);
-  const [chatBoxMessagesHeight, setChatBoxMessagesHeight] = useState(0);
-  const [chatsHeight, setChatsHeight] = useState(0);
-  const [scrollHeight, setScrollHeight] = useState<number>(0);
-  const chatsRef = useRef<HTMLDivElement>(null);
-  const chatBoxHeaderRef = useRef<HTMLDivElement>(null);
-  const chatBoxFooterRef = useRef<HTMLDivElement>(null);
-  const chatBoxMessagesRef = useRef<HTMLDivElement>(null);
-
-  if (scrollHeight && chatBoxMessagesRef.current) {
-    chatBoxMessagesRef.current.scrollTop = scrollHeight;
-  }
+  const { data: users } = useQuery({
+    queryKey: ["api", "users"],
+    queryFn: getAllUsers,
+    enabled: !!user,
+  });
 
   useEffect(() => {
     const socket = io("http://localhost:3000");
     socket.on("connect", () => {
       console.log("socket connection successful!");
     });
-  }, []);
+
+    return () => {
+      socket.disconnect();
+    };
+  });
 
   useLayoutEffect(() => {
-    const height = window.innerHeight;
-    if (
-      chatsRef.current &&
-      chatBoxMessagesRef.current &&
-      chatBoxFooterRef.current &&
-      chatBoxHeaderRef.current
-    ) {
-      setChatsHeight(
-        height - Math.round(chatsRef.current.getBoundingClientRect().top)
-      );
-      setChatBoxMessagesHeight(
-        height -
-          (Math.round(chatBoxHeaderRef.current.getBoundingClientRect().top) +
-            Math.round(
-              chatBoxFooterRef.current.getBoundingClientRect().height +
-                chatBoxFooterRef.current.getBoundingClientRect().height
-            ))
-      );
-      setTimeout(() => {
-        if (chatBoxMessagesRef.current) {
-          setScrollHeight(chatBoxMessagesRef.current?.scrollHeight);
-        }
-      }, 100);
+    if (chatMessagesRef.current) {
+      if (chatMessagesRef.current.scrollHeight) {
+        chatMessagesRef.current.scrollTop =
+          chatMessagesRef.current.scrollHeight;
+      }
     }
-  }, []);
+  });
 
   return (
     <HelmetProvider>
@@ -81,29 +67,17 @@ export default function Home() {
             rel="stylesheet"
           />
         </Helmet>
-        <div
-          className="container p-0"
-          style={{
-            height: "100vh",
-            display: "flex",
-            flexFlow: "column",
-          }}
-        >
+        <div className="container p-1 vh-100 d-flex flex-column">
           <h1 className="mb-3 h3">Messages</h1>
-          <div
-            className="card"
-            style={{
-              flexGrow: "1",
-            }}
-          >
-            <div
-              className="row g-0"
-              style={{
-                height: "100%",
-              }}
-            >
-              <div className="col-12 col-lg-5 col-xl-3 border-right">
-                <div className="px-4 d-none d-md-block">
+          <div className="card overflow-hidden">
+            <div className="d-flex g-0 flex-grow-1 overflow-hidden">
+              <div className="col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto">
+                <div
+                  className="px-4 d-none d-md-block position-fixed bg-white"
+                  style={{
+                    zIndex: "1",
+                  }}
+                >
                   <div className="d-flex align-items-center">
                     <div className="flex-grow-1">
                       <input
@@ -115,187 +89,42 @@ export default function Home() {
                   </div>
                 </div>
                 <div
-                  ref={chatsRef}
                   style={{
-                    maxHeight: `${chatsHeight}px`,
-                    overflowY: "auto",
+                    paddingTop: "70px",
                   }}
                 >
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="float-right badge bg-success">5</div>
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                        className="mr-1 rounded-circle"
-                        alt="Vanessa Tucker"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        Vanessa Tucker
-                        <div className="small">
-                          <span className="fas fa-circle chat-online" /> Online
+                  {users &&
+                    users.map((user: any, index: number) => {
+                      return (
+                        <div
+                          className="border-0 list-group-item list-group-item-action"
+                          key={index}
+                        >
+                          <div className="float-right badge bg-success">5</div>
+                          <div className="d-flex align-items-start">
+                            <img
+                              src="https://bootdey.com/img/Content/avatar/avatar5.png"
+                              className="mr-1 rounded-circle"
+                              alt="Vanessa Tucker"
+                              width={40}
+                              height={40}
+                            />
+                            <div className="ml-3 flex-grow-1">
+                              Vanessa Tucker
+                              <div className="small">
+                                <span className="fas fa-circle chat-online" />{" "}
+                                Online
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="float-right badge bg-success">2</div>
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                        className="mr-1 rounded-circle"
-                        alt="William Harris"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        William Harris
-                        <div className="small">
-                          <span className="fas fa-circle chat-online" /> Online
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                        className="mr-1 rounded-circle"
-                        alt="Sharon Lessman"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        Sharon Lessman
-                        <div className="small">
-                          <span className="fas fa-circle chat-online" /> Online
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                        className="mr-1 rounded-circle"
-                        alt="Christina Mason"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        Christina Mason
-                        <div className="small">
-                          <span className="fas fa-circle chat-offline" />{" "}
-                          Offline
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                        className="mr-1 rounded-circle"
-                        alt="Fiona Green"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        Fiona Green
-                        <div className="small">
-                          <span className="fas fa-circle chat-offline" />{" "}
-                          Offline
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                        className="mr-1 rounded-circle"
-                        alt="Doris Wilder"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        Doris Wilder
-                        <div className="small">
-                          <span className="fas fa-circle chat-offline" />{" "}
-                          Offline
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                        className="mr-1 rounded-circle"
-                        alt="Haley Kennedy"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        Haley Kennedy
-                        <div className="small">
-                          <span className="fas fa-circle chat-offline" />{" "}
-                          Offline
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    className="border-0 list-group-item list-group-item-action"
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                        className="mr-1 rounded-circle"
-                        alt="Jennifer Chang"
-                        width={40}
-                        height={40}
-                      />
-                      <div className="ml-3 flex-grow-1">
-                        Jennifer Chang
-                        <div className="small">
-                          <span className="fas fa-circle chat-offline" />{" "}
-                          Offline
-                        </div>
-                      </div>
-                    </div>
-                  </a>
+                      );
+                    })}
                 </div>
                 <hr className="mt-1 mb-0 d-block d-lg-none" />
               </div>
-              <div className="flex col-12 col-lg-7 col-xl-9 d-flex flex-column">
-                <div
-                  className="px-4 py-2 border-bottom d-none d-lg-block"
-                  ref={chatBoxHeaderRef}
-                >
+              <div className="flex col-12 col-lg-7 col-xl-9 d-flex flex-column justify-content-between">
+                <div className="px-4 py-2 border-bottom d-none d-lg-block">
                   <div className="py-1 d-flex align-items-center">
                     <div className="position-relative">
                       <img
@@ -374,21 +203,14 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div
-                  className=""
-                  style={{
-                    flexGrow: "1",
-                    height: `${chatBoxMessagesHeight}px`,
-                  }}
-                >
+                <div className="flex-grow-1 overflow-hidden">
                   <div
                     className="p-4 chat-messages"
-                    ref={chatBoxMessagesRef}
                     style={{
                       height: "100%",
                       overflowY: "auto",
-                      visibility: `${scrollHeight ? "visible" : "hidden"}`,
                     }}
+                    ref={chatMessagesRef}
                   >
                     <div>
                       <div className="pb-4 chat-message-right">
@@ -637,10 +459,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div
-                  className="flex-grow-0 px-4 py-3 border-top"
-                  ref={chatBoxFooterRef}
-                >
+                <div className="flex-grow-0 px-4 py-3 border-top">
                   <div className="input-group">
                     <input
                       type="text"
