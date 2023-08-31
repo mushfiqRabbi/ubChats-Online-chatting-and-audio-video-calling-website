@@ -1,36 +1,74 @@
 import { Helmet, HelmetProvider } from "react-helmet-async";
-// import "./Home.css";
-import { useEffect, useRef, useLayoutEffect } from "react";
+import "./Home.css";
+import React, { useEffect, useRef, useLayoutEffect, useState } from "react";
 // import { socket } from "../../utils/socket";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
 import { useQuery } from "react-query";
 import axios from "axios";
 
-const getAllUsers = async () => {
-  const response = await axios.get("http://localhost:3000/api/users");
-  return response.data.users;
+let socket: Socket;
+
+const getAllInboxes = async ({ queryKey }) => {
+  const response = await axios.get(
+    `http://localhost:3000/api/inboxes?user-email=${queryKey[2].email}`
+  );
+  console.log(response.data);
+  return response.data;
 };
 
 export default function Home() {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { data: user } = useAuthUser(["user"], auth);
-  const { data: users } = useQuery({
-    queryKey: ["api", "users"],
-    queryFn: getAllUsers,
+  const { data: inboxes } = useQuery({
+    queryKey: ["api", "inboxes", user],
+    queryFn: getAllInboxes,
     enabled: !!user,
   });
+  const [selectedInbox, setSelectedInbox] = useState<any>(null);
+  const msgInputRef = useRef<HTMLInputElement>(null);
+
+  function handleOpenInbox(event: React.MouseEvent<HTMLDivElement>) {
+    setSelectedInbox(this);
+  }
+
+  function handSendMsg() {
+    if (!selectedInbox?.id) {
+      socket.emit(
+        "create-inbox-and-new-message",
+        msgInputRef.current?.value,
+        selectedInbox.email,
+        (msg: string) => {
+          console.log(msg);
+        }
+      );
+    } else {
+      socket.emit(
+        "new-message",
+        msgInputRef.current?.value,
+        selectedInbox?.id,
+        (msg: string) => {
+          console.log(msg);
+        }
+      );
+    }
+  }
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
-    socket.on("connect", () => {
-      console.log("socket connection successful!");
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    if (user) {
+      socket = io("http://localhost:3000", {
+        auth: {
+          email: user.email,
+        },
+      });
+      socket.on("connect", () => {
+        console.log("socket connection successful!");
+      });
+      return () => {
+        socket.disconnect();
+      };
+    }
   });
 
   useLayoutEffect(() => {
@@ -93,12 +131,13 @@ export default function Home() {
                     paddingTop: "70px",
                   }}
                 >
-                  {users &&
-                    users.map((user: any, index: number) => {
+                  {inboxes &&
+                    inboxes.map((item: any, index: number) => {
                       return (
                         <div
                           className="border-0 list-group-item list-group-item-action"
                           key={index}
+                          onClick={handleOpenInbox.bind(item)}
                         >
                           <div className="float-right badge bg-success">5</div>
                           <div className="d-flex align-items-start">
@@ -465,8 +504,11 @@ export default function Home() {
                       type="text"
                       className="form-control"
                       placeholder="Type your message"
+                      ref={msgInputRef}
                     />
-                    <button className="btn btn-primary">Send</button>
+                    <button onClick={handSendMsg} className="btn btn-primary">
+                      Send
+                    </button>
                   </div>
                 </div>
               </div>
