@@ -1,9 +1,11 @@
-async function getAllUsersList(admin) {
+const admin = require("../firebase_admin");
+
+async function getAllUsersList() {
   const users = await admin.auth().listUsers(10);
   return users;
 }
 
-async function getUserByEmail(admin, email) {
+async function getUserByEmail(email) {
   const user = await admin.auth().getUserByEmail(email);
   return user;
 }

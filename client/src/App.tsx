@@ -15,11 +15,11 @@ export default function App(): JSX.Element {
     signOutMutation.mutate();
   };
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      console.log("user : ", user);
-    });
-  }, []);
+  // useEffect(() => {
+  //   onAuthStateChanged(auth, (user) => {
+  //     console.log("user : ", user);
+  //   });
+  // }, []);
   return (
     <div>
       <Routes>

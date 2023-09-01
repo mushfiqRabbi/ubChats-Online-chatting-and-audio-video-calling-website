@@ -13,6 +13,11 @@ const {
   getUserByEmail,
 } = require("./controllers/userController");
 
+const {
+  getInboxListWithOverView,
+  getMessages,
+} = require("./controllers/inboxController");
+
 const ioServer = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
@@ -35,14 +40,11 @@ async function main() {
   // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
 }
 
-ioServer.on("connection", (socket) => {
-  console.log("a user connected with email : ", socket.handshake.auth.email);
-  socket.on("disconnect", () => {
-    console.log(
-      "a user disconnected with email : ",
-      socket.handshake.auth.email
-    );
-  });
+ioServer.on("connection", async (socket) => {
+  const inboxIds = (
+    await getInboxListWithOverView(socket.handshake.auth.email)
+  ).map((inbox) => inbox.inboxId);
+  socket.join(inboxIds);
 
   socket.on("open-inbox", (roomId, cb) => {
     if (!roomId) {
@@ -65,6 +67,8 @@ ioServer.on("connection", (socket) => {
   });
 
   socket.on("new-message", async (message, inboxId, cb) => {});
+
+  socket.on("disconnect", () => {});
 });
 
 // app.get("/api/users", async (req, res) => {
@@ -73,25 +77,24 @@ ioServer.on("connection", (socket) => {
 //   res.json(users);
 // });
 
-app.get("/api/inboxes", async (req, res) => {
-  const inboxes = await Inbox.find({
-    belongs_to: {
-      $elemMatch: {
-        $eq: req.query["user-email"],
-      },
-    },
-  });
-  console.log(inboxes);
-  res.json(inboxes);
+app.get("/api/inbox_list_with_overview/:email", async (req, res) => {
+  const inboxListWithOverView = await getInboxListWithOverView(
+    req.params.email
+  );
+  res.json(inboxListWithOverView);
 });
 
-app.get("/api/inbox-details", async (req, res) => {
-  console.log(req.query);
-  const user = await getUserByEmail(admin, req.query["user-email"]);
-  res.json({
-    userEmail: user.email,
-  });
+app.get("/api/messages/:inboxId", async (req, res) => {
+  const messages = await getMessages(req.params.inboxId);
+  res.json(messages);
 });
+
+// app.get("/api/inbox-details", async (req, res) => {
+//   const user = await getUserByEmail(req.query["user-email"]);
+//   res.json({
+//     userEmail: user.email,
+//   });
+// });
 
 server.listen(3000, () => {
   console.log("listening on port 3000");
