@@ -3,6 +3,11 @@ async function getAllUsersList(admin) {
   return users;
 }
 
+async function getUserByEmail(admin, email) {
+  const user = await admin.auth().getUserByEmail(email);
+  return user;
+}
 module.exports = {
   getAllUsersList,
+  getUserByEmail,
 };

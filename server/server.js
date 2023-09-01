@@ -8,7 +8,10 @@ const admin = require("./firebase_admin");
 
 const Inbox = require("./models/inboxModel");
 
-const { getAllUsersList } = require("./controllers/userController");
+const {
+  getAllUsersList,
+  getUserByEmail,
+} = require("./controllers/userController");
 
 const ioServer = new Server(server, {
   cors: {
@@ -80,6 +83,14 @@ app.get("/api/inboxes", async (req, res) => {
   });
   console.log(inboxes);
   res.json(inboxes);
+});
+
+app.get("/api/inbox-details", async (req, res) => {
+  console.log(req.query);
+  const user = await getUserByEmail(admin, req.query["user-email"]);
+  res.json({
+    userEmail: user.email,
+  });
 });
 
 server.listen(3000, () => {

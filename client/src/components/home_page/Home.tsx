@@ -1,3 +1,4 @@
+import { Inbox } from "./Inbox";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import "./Home.css";
 import React, { useEffect, useRef, useLayoutEffect, useState } from "react";
@@ -29,7 +30,7 @@ export default function Home() {
   const [selectedInbox, setSelectedInbox] = useState<any>(null);
   const msgInputRef = useRef<HTMLInputElement>(null);
 
-  function handleOpenInbox(event: React.MouseEvent<HTMLDivElement>) {
+  function handleOpenInbox() {
     setSelectedInbox(this);
   }
 
@@ -134,29 +135,13 @@ export default function Home() {
                   {inboxes &&
                     inboxes.map((item: any, index: number) => {
                       return (
-                        <div
-                          className="border-0 list-group-item list-group-item-action"
+                        <Inbox
                           key={index}
-                          onClick={handleOpenInbox.bind(item)}
-                        >
-                          <div className="float-right badge bg-success">5</div>
-                          <div className="d-flex align-items-start">
-                            <img
-                              src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                              className="mr-1 rounded-circle"
-                              alt="Vanessa Tucker"
-                              width={40}
-                              height={40}
-                            />
-                            <div className="ml-3 flex-grow-1">
-                              Vanessa Tucker
-                              <div className="small">
-                                <span className="fas fa-circle chat-online" />{" "}
-                                Online
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                          item={item}
+                          user={user}
+                          inboxes={inboxes}
+                          handleOpenInbox={handleOpenInbox}
+                        />
                       );
                     })}
                 </div>
