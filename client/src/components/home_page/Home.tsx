@@ -7,11 +7,16 @@ import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
 import "./Home.css";
 import { Socket } from "socket.io-client";
+import { useQueryClient } from "react-query";
+import { useAtom } from "jotai";
+import { selectedInboxAtom } from "../../jotai_atoms";
 
 let socket: Socket;
 
 export default function Home() {
+  const queryClient = useQueryClient();
   const { data: user } = useAuthUser(["user"], auth);
+  const [selectedInbox] = useAtom(selectedInboxAtom);
 
   useEffect(() => {
     if (user) {
@@ -19,6 +24,14 @@ export default function Home() {
       // socket.on("connect", () => {
       //   console.log("socket connection successful");
       // });
+      socket.on("new-message", (message) => {
+        queryClient.setQueriesData(
+          ["api", "messages", selectedInbox?.inboxId],
+          (messages: any) => {
+            return [...messages, message];
+          }
+        );
+      });
       return () => {
         socket.disconnect();
       };

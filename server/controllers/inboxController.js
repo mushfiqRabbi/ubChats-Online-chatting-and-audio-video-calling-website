@@ -31,4 +31,14 @@ const getMessages = async (inboxId) => {
   return messages;
 };
 
-module.exports = { getInboxListWithOverView, getMessages };
+const postMessage = async ({ _id, sender, message }) => {
+  const inbox = await Inbox.findById(_id);
+  inbox.messages.push({
+    message,
+    sender,
+  });
+  await inbox.save();
+  return inbox.messages.at(-1);
+};
+
+module.exports = { getInboxListWithOverView, getMessages, postMessage };

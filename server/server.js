@@ -16,6 +16,7 @@ const {
 const {
   getInboxListWithOverView,
   getMessages,
+  postMessage,
 } = require("./controllers/inboxController");
 
 const ioServer = new Server(server, {
@@ -25,6 +26,7 @@ const ioServer = new Server(server, {
 });
 
 app.use(cors());
+app.use(express.json());
 
 const mongoose = require("mongoose");
 
@@ -87,6 +89,20 @@ app.get("/api/inbox_list_with_overview/:email", async (req, res) => {
 app.get("/api/messages/:inboxId", async (req, res) => {
   const messages = await getMessages(req.params.inboxId);
   res.json(messages);
+});
+
+app.post("/api/messages/message", async (req, res) => {
+  const message = await postMessage(req.body);
+  const sockets = await ioServer.in(req.body._id).fetchSockets();
+  if (sockets.length > 1) {
+    const socket = sockets.find(
+      (socket) => socket.handshake.auth.email === req.body.sender
+    );
+    socket.to(req.body._id).emit("new-message", message);
+  } else {
+    console.log("no user online at the moment.");
+  }
+  res.json(message);
 });
 
 // app.get("/api/inbox-details", async (req, res) => {
