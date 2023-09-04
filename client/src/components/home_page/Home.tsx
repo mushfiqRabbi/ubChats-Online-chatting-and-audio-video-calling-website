@@ -9,6 +9,7 @@ import { useQueryClient } from "react-query";
 import { useAtom } from "jotai";
 import { selectedInboxAtom } from "../../jotai_atoms";
 import getSocket from "../../utils/socket";
+import { Socket } from "socket.io-client";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -16,8 +17,9 @@ export default function Home() {
   const [selectedInbox] = useAtom(selectedInboxAtom);
 
   useEffect(() => {
+    let socket;
     if (user) {
-      const socket = getSocket(user?.email as string);
+      socket = getSocket(user?.email as string);
       console.log(socket);
       socket.on("new-message", (message) => {
         if (!selectedInbox) {
@@ -65,10 +67,10 @@ export default function Home() {
           }
         );
       });
-      return () => {
-        socket.disconnect();
-      };
     }
+    return () => {
+      socket && socket.disconnect();
+    };
   });
 
   return (
