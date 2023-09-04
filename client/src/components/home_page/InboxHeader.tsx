@@ -1,9 +1,29 @@
 import { useAtom } from "jotai";
 import { selectedInboxAtom } from "../../jotai_atoms";
 import { FaCircle } from "react-icons/fa";
+import { useQuery } from "react-query";
+import { useAuthUser } from "@react-query-firebase/auth";
+import { getInboxListWithOverView } from "../../controllers/query_controllers/inboxController";
+import auth from "../../firebase/firebaseConfig";
 
-export function InboxHeader({ status }) {
+let status;
+
+export function InboxHeader() {
   const [selectedInbox] = useAtom(selectedInboxAtom);
+  const { data: user } = useAuthUser(["user"], auth);
+  const { data: inboxListWithOverView } = useQuery({
+    queryKey: ["api", "inbox_list_with_overview", user?.email],
+    queryFn: getInboxListWithOverView,
+    enabled: !!user,
+  });
+
+  if (selectedInbox) {
+    status = inboxListWithOverView.find(
+      (inboxWithOverview) =>
+        inboxWithOverview.userEmail === selectedInbox?.userEmail
+    ).status;
+  }
+
   return (
     <div className="px-4 py-2 border-bottom d-none d-lg-block">
       <div className="py-1 d-flex align-items-center">
@@ -28,7 +48,13 @@ export function InboxHeader({ status }) {
               }}
             >
               <FaCircle color={`${status && status ? "green" : "red"}`} />
-              <span>{status && status ? "Online" : "Offline"}</span>
+              <span>
+                {status && status
+                  ? status === "typing"
+                    ? "Typing..."
+                    : "Online"
+                  : "Offline"}
+              </span>
             </div>
           </div>
         </div>

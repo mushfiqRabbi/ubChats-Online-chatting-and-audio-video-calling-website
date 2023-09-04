@@ -5,7 +5,7 @@ import { useMutation } from "react-query";
 import {
   sendMessage,
   createInbox,
-} from "../../query_controllers/inboxController";
+} from "../../controllers/query_controllers/inboxController";
 import { selectedInboxAtom } from "../../jotai_atoms";
 import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
@@ -15,7 +15,9 @@ import {
   isSearchListAtom,
   searchNonConnectedUsersAtom,
 } from "../../jotai_atoms";
-import { io } from "socket.io-client";
+import socket from "../../utils/socket";
+
+let tt = false;
 
 export function InboxFooter() {
   const { data: user } = useAuthUser(["user"], auth);
@@ -48,6 +50,27 @@ export function InboxFooter() {
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
+    if (event.target.value) {
+      if (tt) {
+        clearTimeout(tt);
+        tt = setTimeout(() => {
+          socket.emit("user-not-typing", selectedInbox.inboxId, user?.email);
+          tt = false;
+        }, 1000);
+      } else {
+        socket.emit("user-typing", selectedInbox.inboxId, user?.email);
+        tt = setTimeout(() => {
+          socket.emit("user-not-typing", selectedInbox.inboxId, user?.email);
+          tt = false;
+        }, 1000);
+      }
+    } else {
+      if (tt) {
+        clearTimeout(tt);
+        tt = false;
+      }
+      socket.emit("user-not-typing", selectedInbox.inboxId, user?.email);
+    }
   };
 
   const handleSend = async () => {

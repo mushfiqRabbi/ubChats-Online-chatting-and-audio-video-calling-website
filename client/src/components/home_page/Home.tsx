@@ -8,31 +8,29 @@ import "./Home.css";
 import { useQueryClient } from "react-query";
 import { useAtom } from "jotai";
 import { selectedInboxAtom } from "../../jotai_atoms";
-import getSocket from "../../utils/socket";
-import { Socket } from "socket.io-client";
+import socket from "../../utils/socket";
 
 export default function Home() {
   const queryClient = useQueryClient();
   const { data: user } = useAuthUser(["user"], auth);
-  const [selectedInbox] = useAtom(selectedInboxAtom);
+  const [selectedInbox, setSelectedInbox] = useAtom(selectedInboxAtom);
 
   useEffect(() => {
-    let socket;
-    if (user) {
-      socket = getSocket(user?.email as string);
-      console.log(socket);
+    if (socket && user) {
+      socket.auth = { email: user.email };
+      socket.connect();
       socket.on("new-message", (message) => {
-        if (!selectedInbox) {
-          queryClient.invalidateQueries({
-            queryKey: ["api", "inbox_list_with_overview", user?.email],
-          });
-        } else {
+        if (selectedInbox) {
           queryClient.setQueriesData(
             ["api", "messages", selectedInbox?.inboxId],
             (messages: any) => {
               return [...messages, message];
             }
           );
+        } else {
+          queryClient.invalidateQueries({
+            queryKey: ["api", "inbox_list_with_overview", user?.email],
+          });
         }
       });
       socket.on("user-online", (userEmail) => {
@@ -67,11 +65,52 @@ export default function Home() {
           }
         );
       });
+      socket.on("user-typing", (inboxId) => {
+        if (selectedInbox?.inboxId === inboxId) {
+          queryClient.setQueryData(
+            ["api", "inbox_list_with_overview", user?.email],
+            (inboxes: any) => {
+              return inboxes.map((inbox: any) => {
+                if (inbox.inboxId === inboxId) {
+                  return {
+                    ...inbox,
+                    status: "typing",
+                  };
+                }
+                return inbox;
+              });
+            }
+          );
+        }
+      });
+      socket.on("user-not-typing", (inboxId) => {
+        if (selectedInbox?.inboxId === inboxId) {
+          queryClient.setQueryData(
+            ["api", "inbox_list_with_overview", user?.email],
+            (inboxes: any) => {
+              return inboxes.map((inbox: any) => {
+                if (inbox.inboxId === inboxId) {
+                  return {
+                    ...inbox,
+                    status: true,
+                  };
+                }
+                return inbox;
+              });
+            }
+          );
+        }
+      });
     }
     return () => {
+      socket.off("user-online");
+      socket.off("user-offline");
+      socket.off("new-message");
+      socket.off("user-typing");
+      socket.off("user-not-typing");
       socket && socket.disconnect();
     };
-  });
+  }, [queryClient, selectedInbox, user]);
 
   return (
     <HelmetProvider>

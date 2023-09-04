@@ -1,11 +1,7 @@
 import { Socket, io } from "socket.io-client";
 
-function getSocket(email: string) {
-  return io(`http://localhost:3000`, {
-    auth: {
-      email: email,
-    },
-  });
-}
+const socket = io(`http://localhost:3000`, {
+  autoConnect: false,
+});
 
-export default getSocket;
+export default socket;

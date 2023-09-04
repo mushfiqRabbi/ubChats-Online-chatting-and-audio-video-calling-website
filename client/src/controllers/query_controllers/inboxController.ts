@@ -1,6 +1,6 @@
 import { QueryFunctionContext } from "react-query";
 import axios from "axios";
-import { MessageType } from "../types";
+import { MessageType } from "../../types";
 
 const baseUrl = "http://127.0.0.1:3000";
 
@@ -59,6 +59,6 @@ export const createInbox = async ({
     receiver,
     receiverDisplayName,
   });
-  console.log(response);
+  // console.log(response);
   return response.data;
 };

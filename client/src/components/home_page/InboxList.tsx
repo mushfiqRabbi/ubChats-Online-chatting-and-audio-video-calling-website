@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import {
   getInboxListWithOverView,
   getNonConnectedUsers,
-} from "../../query_controllers/inboxController";
+} from "../../controllers/query_controllers/inboxController";
 import auth from "../../firebase/firebaseConfig";
 import { InboxWithOverView } from "./InboxWithOverView";
 import { InboxWithOverViewType } from "../../types";

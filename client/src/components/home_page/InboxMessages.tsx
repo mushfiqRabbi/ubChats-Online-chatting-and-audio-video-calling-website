@@ -1,7 +1,7 @@
 import { useRef, useLayoutEffect } from "react";
 import { useQuery } from "react-query";
 import { useAtom } from "jotai";
-import { getMessages } from "../../query_controllers/inboxController";
+import { getMessages } from "../../controllers/query_controllers/inboxController";
 import { selectedInboxAtom } from "../../jotai_atoms";
 import { InboxWithOverViewType, MessageType } from "../../types";
 import { useAuthUser } from "@react-query-firebase/auth";

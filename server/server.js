@@ -53,8 +53,12 @@ ioServer.on("connection", async (socket) => {
   socket.join(inboxIds);
   socket.to(inboxIds).emit("user-online", socket.handshake.auth.email);
 
-  socket.on("test", () => {
-    console.log("working");
+  socket.on("user-typing", async (inboxId, senderEmail) => {
+    socket.to(inboxId).emit("user-typing", inboxId);
+  });
+
+  socket.on("user-not-typing", async (inboxId, senderEmail) => {
+    socket.to(inboxId).emit("user-not-typing", inboxId);
   });
 
   socket.on("disconnect", () => {
