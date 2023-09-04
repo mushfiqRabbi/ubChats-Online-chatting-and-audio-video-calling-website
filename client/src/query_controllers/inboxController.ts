@@ -35,3 +35,30 @@ export const sendMessage = async ({
   });
   return response.data;
 };
+
+export const getNonConnectedUsers = async ({
+  queryKey,
+}: QueryFunctionContext) => {
+  const response = await axios.get(
+    `${baseUrl}/${queryKey[0]}/${queryKey[1]}/${queryKey[2]}/${queryKey[3]}`
+  );
+  return response.data;
+};
+
+export const createInbox = async ({
+  sender,
+  receiver,
+  receiverDisplayName,
+}: {
+  sender: string;
+  receiver: string;
+  receiverDisplayName: string;
+}) => {
+  const response = await axios.post(`${baseUrl}/api/inboxes/inbox`, {
+    sender,
+    receiver,
+    receiverDisplayName,
+  });
+  console.log(response);
+  return response.data;
+};

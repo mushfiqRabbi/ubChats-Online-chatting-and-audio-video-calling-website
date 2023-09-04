@@ -2,17 +2,29 @@ import { useAtom } from "jotai";
 import { messageAtom } from "../../jotai_atoms";
 import React from "react";
 import { useMutation } from "react-query";
-import { sendMessage } from "../../query_controllers/inboxController";
+import {
+  sendMessage,
+  createInbox,
+} from "../../query_controllers/inboxController";
 import { selectedInboxAtom } from "../../jotai_atoms";
 import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
 import { useQueryClient } from "react-query";
+import {
+  searchTermAtom,
+  isSearchListAtom,
+  searchNonConnectedUsersAtom,
+} from "../../jotai_atoms";
+import { io } from "socket.io-client";
 
 export function InboxFooter() {
   const { data: user } = useAuthUser(["user"], auth);
   const queryClient = useQueryClient();
   const [message, setMessage] = useAtom(messageAtom);
-  const [selectedInbox] = useAtom(selectedInboxAtom);
+  const [selectedInbox, setSelectedInbox] = useAtom(selectedInboxAtom);
+  const [searchTerm] = useAtom(searchTermAtom);
+  const [, setIsSearchList] = useAtom(isSearchListAtom);
+  const [, setSearchNonConnectedUsers] = useAtom(searchNonConnectedUsersAtom);
   const messagesMutation = useMutation({
     mutationFn: sendMessage,
     onMutate: (message) => {
@@ -26,13 +38,20 @@ export function InboxFooter() {
       );
     },
   });
+  const inboxListMutation = useMutation({
+    mutationFn: createInbox,
+    onSuccess: (data) => {
+      // console.log(data);
+      setSelectedInbox(data);
+    },
+  });
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
 
-  const handleSend = () => {
-    if (selectedInbox && user?.email && message !== "") {
+  const handleSend = async () => {
+    if (selectedInbox?.inboxId && user?.email && message !== "") {
       messagesMutation.mutate({
         _id: selectedInbox?.inboxId,
         sender: user?.email,
@@ -41,6 +60,31 @@ export function InboxFooter() {
       });
 
       setMessage("");
+    } else if (user?.email && message !== "") {
+      const inbox = await inboxListMutation.mutateAsync({
+        sender: user?.email as string,
+        receiver: selectedInbox?.userEmail as string,
+        receiverDisplayName: selectedInbox?.userDisplayName as string,
+      });
+      setSelectedInbox(inbox);
+      const mmessage = await messagesMutation.mutateAsync({
+        _id: inbox.inboxId,
+        sender: user?.email,
+        message: message,
+        data: Date.now().toString(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["api", "messages", inbox.inboxId],
+      });
+      setMessage("");
+      if (searchTerm?.value) {
+        searchTerm.value = "";
+      }
+      setIsSearchList(false);
+      setSearchNonConnectedUsers(false);
+      queryClient.invalidateQueries({
+        queryKey: ["api", "inbox_list_with_overview", user?.email],
+      });
     }
   };
   return (

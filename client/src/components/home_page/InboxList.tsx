@@ -1,32 +1,119 @@
 import { useAuthUser } from "@react-query-firebase/auth";
 import { useQuery } from "react-query";
-import { getInboxListWithOverView } from "../../query_controllers/inboxController";
+import {
+  getInboxListWithOverView,
+  getNonConnectedUsers,
+} from "../../query_controllers/inboxController";
 import auth from "../../firebase/firebaseConfig";
 import { InboxWithOverView } from "./InboxWithOverView";
 import { InboxWithOverViewType } from "../../types";
+import { BsSearch } from "react-icons/bs";
+import { useAtom } from "jotai";
+import {
+  searchTermAtom,
+  isSearchListAtom,
+  connectedInboxesAtom,
+  searchNonConnectedUsersAtom,
+} from "../../jotai_atoms";
+import { useRef, useEffect } from "react";
+import { NonConnectedUserType } from "../../types";
 
 export function InboxList() {
   const { data: user } = useAuthUser(["user"], auth);
+  const [, setSearchTerm] = useAtom(searchTermAtom);
+  const [isSearchList, setIsSearchList] = useAtom(isSearchListAtom);
+  const [searchNonConnectedUsers, setSearchNonConnectedUsers] = useAtom(
+    searchNonConnectedUsersAtom
+  );
+  const [connectedInboxes, setConnectedInboxes] = useAtom(connectedInboxesAtom);
+  const searchTermRef = useRef<HTMLInputElement>(null);
   const { data: inboxListWithOverView } = useQuery({
     queryKey: ["api", "inbox_list_with_overview", user?.email],
     queryFn: getInboxListWithOverView,
     enabled: !!user,
   });
+
+  const { data: nonConnectedUsers } = useQuery({
+    queryKey: [
+      "api",
+      "users",
+      "non_connected_users",
+      searchTermRef.current?.value && searchTermRef.current.value,
+    ],
+    queryFn: getNonConnectedUsers,
+    enabled: !!searchNonConnectedUsers,
+  });
+
+  const changeSearchTerm = () => {
+    if (searchTermRef.current?.value === "") {
+      setIsSearchList(false);
+      setSearchNonConnectedUsers(false);
+    }
+  };
+
+  const handleSearch = () => {
+    // setSearchNonConnectedUsers(false);
+    // setConnectedInboxes([]);
+    if (searchTermRef.current?.value === user?.email) {
+      // setIsSearchList(false);
+      return;
+    }
+    const ci = inboxListWithOverView.filter(
+      (inbox: InboxWithOverViewType) =>
+        inbox.userEmail === searchTermRef.current?.value
+    );
+    if (ci.length >= 1) {
+      setSearchNonConnectedUsers(false);
+      setIsSearchList(true);
+      setConnectedInboxes(ci);
+    } else {
+      setIsSearchList(true);
+      setSearchNonConnectedUsers(true);
+      setConnectedInboxes([]);
+    }
+  };
+
+  useEffect(() => {
+    if (searchTermRef.current) {
+      setSearchTerm(searchTermRef.current);
+    }
+  }, []);
+
   return (
     <div className="col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto">
       <div
-        className="px-4 d-none d-md-block position-fixed bg-white"
+        className="d-block position-absolute bg-white px-4"
         style={{
           zIndex: "1",
+          width: "100%",
+          left: "0",
         }}
       >
         <div className="d-flex align-items-center">
-          <div className="flex-grow-1">
+          <div className="flex-grow-1 d-flex align-items-center " style={{}}>
             <input
               type="text"
               className="my-3 form-control"
               placeholder="Search..."
+              style={{
+                borderTopRightRadius: "0",
+                borderBottomRightRadius: "0",
+              }}
+              // value={searchTerm}
+              onChange={changeSearchTerm}
+              ref={searchTermRef}
             />
+            <button
+              className=" btn btn-primary "
+              style={{
+                padding: "5px",
+                borderTopLeftRadius: "0",
+                borderBottomLeftRadius: "0",
+              }}
+              onClick={handleSearch}
+            >
+              <BsSearch color="white" size="24px" />
+            </button>
           </div>
         </div>
       </div>
@@ -35,7 +122,8 @@ export function InboxList() {
           paddingTop: "70px",
         }}
       >
-        {inboxListWithOverView &&
+        {!isSearchList &&
+          inboxListWithOverView &&
           inboxListWithOverView.map(
             (inboxWithOverView: InboxWithOverViewType, index: number) => {
               return (
@@ -46,6 +134,29 @@ export function InboxList() {
               );
             }
           )}
+        {isSearchList &&
+          connectedInboxes &&
+          connectedInboxes.length >= 1 &&
+          connectedInboxes.map(
+            (inboxWithOverView: InboxWithOverViewType, index: number) => {
+              return (
+                <InboxWithOverView
+                  key={index}
+                  inboxWithOverView={inboxWithOverView}
+                />
+              );
+            }
+          )}
+        {isSearchList &&
+        searchNonConnectedUsers &&
+        nonConnectedUsers &&
+        nonConnectedUsers.length >= 1
+          ? nonConnectedUsers.map(
+              (user: NonConnectedUserType, index: number) => {
+                return <InboxWithOverView key={index} user={user} />;
+              }
+            )
+          : ""}
       </div>
       <hr className="mt-1 mb-0 d-block d-lg-none" />
     </div>

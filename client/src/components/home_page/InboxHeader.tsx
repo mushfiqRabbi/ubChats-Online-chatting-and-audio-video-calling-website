@@ -1,7 +1,8 @@
 import { useAtom } from "jotai";
 import { selectedInboxAtom } from "../../jotai_atoms";
+import { FaCircle } from "react-icons/fa";
 
-export function InboxHeader() {
+export function InboxHeader({ status }) {
   const [selectedInbox] = useAtom(selectedInboxAtom);
   return (
     <div className="px-4 py-2 border-bottom d-none d-lg-block">
@@ -18,7 +19,17 @@ export function InboxHeader() {
         <div className="pl-3 flex-grow-1">
           <strong>{selectedInbox && selectedInbox.userDisplayName}</strong>
           <div className="text-muted small">
-            <em>Typing...</em>
+            {/* <em>Typing...</em> */}
+            <div
+              style={{
+                display: "flex",
+                gap: "4px",
+                alignItems: "center",
+              }}
+            >
+              <FaCircle color={`${status && status ? "green" : "red"}`} />
+              <span>{status && status ? "Online" : "Offline"}</span>
+            </div>
           </div>
         </div>
         <div>

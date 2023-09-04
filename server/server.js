@@ -14,10 +14,14 @@ const {
 } = require("./controllers/userController");
 
 const {
+  createInbox,
   getInboxListWithOverView,
   getMessages,
   postMessage,
+  getReceiverEmail,
 } = require("./controllers/inboxController");
+
+const { getSocketByEmail } = require("./controllers/socketController");
 
 const ioServer = new Server(server, {
   cors: {
@@ -44,46 +48,34 @@ async function main() {
 
 ioServer.on("connection", async (socket) => {
   const inboxIds = (
-    await getInboxListWithOverView(socket.handshake.auth.email)
+    await getInboxListWithOverView(socket.handshake.auth.email, ioServer)
   ).map((inbox) => inbox.inboxId);
   socket.join(inboxIds);
+  socket.to(inboxIds).emit("user-online", socket.handshake.auth.email);
 
-  socket.on("open-inbox", (roomId, cb) => {
-    if (!roomId) {
-    }
-    cb("open inbox successful!");
+  socket.on("test", () => {
+    console.log("working");
   });
 
-  socket.on("create-inbox-and-new-message", async (message, receiver, cb) => {
-    cb("inbox creation successful!");
-    const inbox = await Inbox.create({
-      belongs_to: [socket.handshake.auth.email, receiver],
-      messages: [
-        {
-          message: message,
-          sender: socket.handshake.auth.email,
-        },
-      ],
-    });
-    console.log(inbox);
+  socket.on("disconnect", () => {
+    socket.to(inboxIds).emit("user-offline", socket.handshake.auth.email);
+    socket.leave(inboxIds);
   });
-
-  socket.on("new-message", async (message, inboxId, cb) => {});
-
-  socket.on("disconnect", () => {});
 });
-
-// app.get("/api/users", async (req, res) => {
-//   const users = await getAllUsersList(admin);
-//   // console.log(users);
-//   res.json(users);
-// });
 
 app.get("/api/inbox_list_with_overview/:email", async (req, res) => {
   const inboxListWithOverView = await getInboxListWithOverView(
-    req.params.email
+    req.params.email,
+    ioServer
   );
   res.json(inboxListWithOverView);
+});
+
+app.post("/api/inboxes/inbox", async (req, res) => {
+  const inboxWithOverview = await createInbox(req.body);
+  const senderSocket = await getSocketByEmail(req.body.sender, ioServer);
+  senderSocket.join(inboxWithOverview.inboxId);
+  res.json(inboxWithOverview);
 });
 
 app.get("/api/messages/:inboxId", async (req, res) => {
@@ -93,16 +85,36 @@ app.get("/api/messages/:inboxId", async (req, res) => {
 
 app.post("/api/messages/message", async (req, res) => {
   const message = await postMessage(req.body);
-  const sockets = await ioServer.in(req.body._id).fetchSockets();
-  if (sockets.length > 1) {
-    const socket = sockets.find(
-      (socket) => socket.handshake.auth.email === req.body.sender
-    );
-    socket.to(req.body._id).emit("new-message", message);
-  } else {
-    console.log("no user online at the moment.");
+  const receiverEmail = await getReceiverEmail(req.body._id, req.body.sender);
+  const senderSocket = await getSocketByEmail(req.body.sender, ioServer);
+  const receiverSocket = await getSocketByEmail(receiverEmail, ioServer);
+  let sockets = await ioServer.in(req.body._id).fetchSockets();
+  if (sockets.length < 1) {
+    senderSocket.join(req.body._id);
+    if (receiverSocket) {
+      receiverSocket.join(req.body._id);
+    }
+  } else if (sockets.length === 1) {
+    if (receiverSocket) {
+      receiverSocket.join(req.body._id);
+    }
   }
+  senderSocket.to(req.body._id).emit("new-message", message);
   res.json(message);
+});
+
+app.get("/api/users/non_connected_users/:email", async (req, res) => {
+  const user = await getUserByEmail(req.params.email);
+  if (user) {
+    res.json([
+      {
+        userEmail: user.email,
+        userDisplayName: user.displayName,
+      },
+    ]);
+  } else {
+    res.json([]);
+  }
 });
 
 // app.get("/api/inbox-details", async (req, res) => {

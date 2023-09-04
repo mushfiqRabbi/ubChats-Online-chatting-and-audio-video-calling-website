@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import { useAtom } from "jotai";
 import { getMessages } from "../../query_controllers/inboxController";
 import { selectedInboxAtom } from "../../jotai_atoms";
-import { MessageType } from "../../types";
+import { InboxWithOverViewType, MessageType } from "../../types";
 import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
 
@@ -12,9 +12,13 @@ export function InboxMessages() {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const [selectedInbox] = useAtom(selectedInboxAtom);
   const { data: messages } = useQuery({
-    queryKey: ["api", "messages", selectedInbox?.inboxId],
+    queryKey: [
+      "api",
+      "messages",
+      selectedInbox?.inboxId && selectedInbox?.inboxId,
+    ],
     queryFn: getMessages,
-    enabled: !!selectedInbox,
+    enabled: !!selectedInbox.inboxId,
   });
 
   useLayoutEffect(() => {

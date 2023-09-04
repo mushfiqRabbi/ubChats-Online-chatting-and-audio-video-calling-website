@@ -1,9 +1,11 @@
-import { io } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
 
-export const initiatePrimarySocket = (email: string) => {
-  return io("http://localhost:3000", {
+function getSocket(email: string) {
+  return io(`http://localhost:3000`, {
     auth: {
       email: email,
     },
   });
-};
+}
+
+export default getSocket;

@@ -2,16 +2,13 @@ import { InboxList } from "./InboxList";
 import InboxContent from "./InboxContent";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useEffect } from "react";
-import { initiatePrimarySocket } from "../../utils/socket";
 import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
 import "./Home.css";
-import { Socket } from "socket.io-client";
 import { useQueryClient } from "react-query";
 import { useAtom } from "jotai";
 import { selectedInboxAtom } from "../../jotai_atoms";
-
-let socket: Socket;
+import getSocket from "../../utils/socket";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -20,15 +17,51 @@ export default function Home() {
 
   useEffect(() => {
     if (user) {
-      socket = initiatePrimarySocket(user?.email as string);
-      // socket.on("connect", () => {
-      //   console.log("socket connection successful");
-      // });
+      const socket = getSocket(user?.email as string);
+      console.log(socket);
       socket.on("new-message", (message) => {
-        queryClient.setQueriesData(
-          ["api", "messages", selectedInbox?.inboxId],
-          (messages: any) => {
-            return [...messages, message];
+        if (!selectedInbox) {
+          queryClient.invalidateQueries({
+            queryKey: ["api", "inbox_list_with_overview", user?.email],
+          });
+        } else {
+          queryClient.setQueriesData(
+            ["api", "messages", selectedInbox?.inboxId],
+            (messages: any) => {
+              return [...messages, message];
+            }
+          );
+        }
+      });
+      socket.on("user-online", (userEmail) => {
+        queryClient.setQueryData(
+          ["api", "inbox_list_with_overview", user?.email],
+          (inboxes: any) => {
+            return inboxes.map((inbox: any) => {
+              if (inbox.userEmail === userEmail) {
+                return {
+                  ...inbox,
+                  status: true,
+                };
+              }
+              return inbox;
+            });
+          }
+        );
+      });
+      socket.on("user-offline", (userEmail) => {
+        queryClient.setQueryData(
+          ["api", "inbox_list_with_overview", user?.email],
+          (inboxes: any) => {
+            return inboxes.map((inbox: any) => {
+              if (inbox.userEmail === userEmail) {
+                return {
+                  ...inbox,
+                  status: false,
+                };
+              }
+              return inbox;
+            });
           }
         );
       });

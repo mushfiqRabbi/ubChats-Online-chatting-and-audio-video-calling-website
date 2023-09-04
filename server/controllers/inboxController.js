@@ -1,7 +1,20 @@
 const Inbox = require("../models/inboxModel");
 const { getUserByEmail } = require("./userController");
+const { getSocketByEmail } = require("./socketController");
 
-const getInboxListWithOverView = async (email) => {
+const createInbox = async ({ sender, receiver, receiverDisplayName }) => {
+  const inbox = await Inbox.create({
+    belongs_to: [sender, receiver],
+  });
+
+  return {
+    inboxId: inbox._id.toHexString(),
+    userEmail: receiver,
+    userDisplayName: receiverDisplayName,
+  };
+};
+
+const getInboxListWithOverView = async (email, ioServer) => {
   let inboxListWithOverView = await Inbox.find({
     belongs_to: {
       $elemMatch: {
@@ -10,7 +23,7 @@ const getInboxListWithOverView = async (email) => {
     },
   }).slice("messages", -1);
 
-  return await Promise.all(
+  inboxListWithOverView = await Promise.all(
     inboxListWithOverView.map(async (inbox) => {
       const user = await getUserByEmail(
         inbox.belongs_to.find((e) => e !== email)
@@ -19,11 +32,26 @@ const getInboxListWithOverView = async (email) => {
         inboxId: inbox._id.toHexString(),
         userEmail: user.email,
         userDisplayName: user.displayName,
-        lastMessage: inbox.messages[0].message,
-        lastMessageDate: inbox.messages[0].data,
+        lastMessage: inbox?.messages[0]?.message,
+        lastMessageDate: inbox?.messages[0]?.data,
       };
     })
   );
+
+  inboxListWithOverView = await Promise.all(
+    inboxListWithOverView.map(async (inboxWithOverview) => {
+      const socket = await getSocketByEmail(
+        inboxWithOverview.userEmail,
+        ioServer
+      );
+      return await {
+        ...inboxWithOverview,
+        status: !!socket?.connected,
+      };
+    })
+  );
+
+  return inboxListWithOverView;
 };
 
 const getMessages = async (inboxId) => {
@@ -33,12 +61,23 @@ const getMessages = async (inboxId) => {
 
 const postMessage = async ({ _id, sender, message }) => {
   const inbox = await Inbox.findById(_id);
-  inbox.messages.push({
+  inbox?.messages.push({
     message,
     sender,
   });
-  await inbox.save();
-  return inbox.messages.at(-1);
+  await inbox?.save();
+  return inbox?.messages?.at(-1);
 };
 
-module.exports = { getInboxListWithOverView, getMessages, postMessage };
+const getReceiverEmail = async (inboxId, senderEmail) => {
+  const receiverEmail = await Inbox.findById(inboxId);
+  return receiverEmail.belongs_to.find((email) => email !== senderEmail);
+};
+
+module.exports = {
+  getInboxListWithOverView,
+  getMessages,
+  postMessage,
+  createInbox,
+  getReceiverEmail,
+};
