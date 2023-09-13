@@ -1,12 +1,15 @@
-import { InboxWithOverViewType, NonConnectedUserType } from "../../types";
+import {
+  ConnectedInboxWithOverview,
+  NonConnectedInboxWithOverviewType,
+} from "../../types";
 import { useAtom } from "jotai";
 import { selectedInboxAtom } from "../../jotai_atoms";
 
 import { FaCircle } from "react-icons/fa";
 
 interface InboxWithOverViewPropsType {
-  inboxWithOverView?: InboxWithOverViewType;
-  user?: NonConnectedUserType;
+  inboxWithOverView?: ConnectedInboxWithOverview;
+  user?: NonConnectedInboxWithOverviewType;
 }
 
 export function InboxWithOverView({

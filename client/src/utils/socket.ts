@@ -1,6 +1,8 @@
-import { Socket, io } from "socket.io-client";
+import { io } from "socket.io-client";
 
-const socket = io(`http://localhost:3000`, {
+const url = import.meta.env ? "http://localhost:3000" : "/";
+
+const socket = io(url, {
   autoConnect: false,
 });
 

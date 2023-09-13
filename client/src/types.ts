@@ -1,20 +1,24 @@
-export interface InboxWithOverViewType {
-  inboxId: string;
-  lastMessage?: string;
-  lastMessageDate?: string;
-  userEmail: string;
-  userDisplayName: string;
-  status: boolean;
-}
+// export interface InboxWithOverViewType {
+//   userEmail: string;
+//   userDisplayName: string;
+// }
 
 export interface MessageType {
-  data: string;
+  data: string | number;
   message: string;
   sender: string;
   _id: string;
 }
 
-export interface NonConnectedUserType {
+export interface NonConnectedInboxWithOverviewType {
   userEmail: string;
   userDisplayName: string;
+}
+
+export interface ConnectedInboxWithOverview
+  extends NonConnectedInboxWithOverviewType {
+  inboxId: string;
+  lastMessage: string;
+  lastMessageDate: string;
+  status?: boolean;
 }

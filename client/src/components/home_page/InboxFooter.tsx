@@ -1,6 +1,5 @@
 import { useAtom } from "jotai";
 import { messageAtom } from "../../jotai_atoms";
-import React from "react";
 import { useMutation } from "react-query";
 import {
   sendMessage,
@@ -17,7 +16,7 @@ import {
 } from "../../jotai_atoms";
 import socket from "../../utils/socket";
 
-let tt = false;
+let tt: any = false;
 
 export function InboxFooter() {
   const { data: user } = useAuthUser(["user"], auth);
@@ -31,7 +30,11 @@ export function InboxFooter() {
     mutationFn: sendMessage,
     onMutate: (message) => {
       queryClient.setQueryData(
-        ["api", "messages", selectedInbox?.inboxId],
+        [
+          "api",
+          "messages",
+          selectedInbox && "inboxId" in selectedInbox && selectedInbox?.inboxId,
+        ],
         (messages: any) => {
           if (messages) {
             return [...messages, message];
@@ -55,9 +58,7 @@ export function InboxFooter() {
     },
   });
 
-  const handleMessageChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleMessageChange = (event: any) => {
     if (event.key === "Enter") {
       if (!event.getModifierState("Shift")) {
         event.preventDefault();
@@ -69,13 +70,29 @@ export function InboxFooter() {
       if (tt) {
         clearTimeout(tt);
         tt = setTimeout(() => {
-          socket.emit("user-not-typing", selectedInbox.inboxId, user?.email);
+          socket.emit(
+            "user-not-typing",
+            selectedInbox &&
+              "inboxId" in selectedInbox &&
+              selectedInbox.inboxId,
+            user?.email
+          );
           tt = false;
         }, 1000);
       } else {
-        socket.emit("user-typing", selectedInbox.inboxId, user?.email);
+        socket.emit(
+          "user-typing",
+          selectedInbox && "inboxId" in selectedInbox && selectedInbox.inboxId,
+          user?.email
+        );
         tt = setTimeout(() => {
-          socket.emit("user-not-typing", selectedInbox.inboxId, user?.email);
+          socket.emit(
+            "user-not-typing",
+            selectedInbox &&
+              "inboxId" in selectedInbox &&
+              selectedInbox.inboxId,
+            user?.email
+          );
           tt = false;
         }, 1000);
       }
@@ -84,12 +101,22 @@ export function InboxFooter() {
         clearTimeout(tt);
         tt = false;
       }
-      socket.emit("user-not-typing", selectedInbox.inboxId, user?.email);
+      socket.emit(
+        "user-not-typing",
+        selectedInbox && "inboxId" in selectedInbox && selectedInbox.inboxId,
+        user?.email
+      );
     }
   };
 
   const handleSend = async () => {
-    if (selectedInbox?.inboxId && user?.email && message !== "") {
+    if (
+      selectedInbox &&
+      "inboxId" in selectedInbox &&
+      selectedInbox?.inboxId &&
+      user?.email &&
+      message !== ""
+    ) {
       messagesMutation.mutate({
         _id: selectedInbox?.inboxId,
         sender: user?.email,
@@ -105,7 +132,7 @@ export function InboxFooter() {
         receiverDisplayName: selectedInbox?.userDisplayName as string,
       });
       setSelectedInbox(inbox);
-      const mmessage = await messagesMutation.mutateAsync({
+      await messagesMutation.mutateAsync({
         _id: inbox.inboxId,
         sender: user?.email,
         message: message,
@@ -131,7 +158,6 @@ export function InboxFooter() {
     <div className="flex-grow-0 px-4 py-3 border-top">
       <div className="input-group">
         <textarea
-          type=""
           className="form-control "
           style={{
             resize: "none",

@@ -9,8 +9,9 @@ import { toast } from "react-toastify";
 
 import { BiPhoneCall } from "react-icons/bi";
 import { AiOutlineVideoCamera } from "react-icons/ai";
+import { ConnectedInboxWithOverview } from "../../types";
 
-let status;
+let status: string;
 
 export function InboxHeader() {
   const [selectedInbox] = useAtom(selectedInboxAtom);
@@ -23,7 +24,7 @@ export function InboxHeader() {
 
   if (selectedInbox) {
     status = inboxListWithOverView.find(
-      (inboxWithOverview) =>
+      (inboxWithOverview: ConnectedInboxWithOverview) =>
         inboxWithOverview.userEmail === selectedInbox?.userEmail
     )?.status;
   }

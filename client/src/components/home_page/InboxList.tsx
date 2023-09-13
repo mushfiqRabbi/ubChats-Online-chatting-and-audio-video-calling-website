@@ -6,7 +6,7 @@ import {
 } from "../../controllers/query_controllers/inboxController";
 import auth from "../../firebase/firebaseConfig";
 import { InboxWithOverView } from "./InboxWithOverView";
-import { InboxWithOverViewType } from "../../types";
+import { ConnectedInboxWithOverview } from "../../types";
 import { BsSearch } from "react-icons/bs";
 import { useAtom } from "jotai";
 import {
@@ -17,7 +17,7 @@ import {
   selectedInboxAtom,
 } from "../../jotai_atoms";
 import { useRef, useEffect } from "react";
-import { NonConnectedUserType } from "../../types";
+import { NonConnectedInboxWithOverviewType } from "../../types";
 
 export function InboxList() {
   const { data: user } = useAuthUser(["user"], auth);
@@ -61,7 +61,7 @@ export function InboxList() {
       return;
     }
     const ci = inboxListWithOverView.filter(
-      (inbox: InboxWithOverViewType) =>
+      (inbox: ConnectedInboxWithOverview) =>
         inbox.userEmail === searchTermRef.current?.value
     );
     if (ci.length >= 1) {
@@ -132,24 +132,34 @@ export function InboxList() {
         {!isSearchList &&
           inboxListWithOverView &&
           inboxListWithOverView
-            .sort((a: InboxWithOverViewType, b: InboxWithOverViewType) => {
-              return (
-                Date.parse(b.lastMessageDate) - Date.parse(a.lastMessageDate)
-              );
-            })
-            .map((inboxWithOverView: InboxWithOverViewType, index: number) => {
-              return (
-                <InboxWithOverView
-                  key={index}
-                  inboxWithOverView={inboxWithOverView}
-                />
-              );
-            })}
+            .sort(
+              (
+                a: ConnectedInboxWithOverview,
+                b: ConnectedInboxWithOverview
+              ) => {
+                return (
+                  Date.parse(b.lastMessageDate) - Date.parse(a.lastMessageDate)
+                );
+              }
+            )
+            .map(
+              (
+                inboxWithOverView: ConnectedInboxWithOverview,
+                index: number
+              ) => {
+                return (
+                  <InboxWithOverView
+                    key={index}
+                    inboxWithOverView={inboxWithOverView}
+                  />
+                );
+              }
+            )}
         {isSearchList &&
           connectedInboxes &&
           connectedInboxes.length >= 1 &&
           connectedInboxes.map(
-            (inboxWithOverView: InboxWithOverViewType, index: number) => {
+            (inboxWithOverView: ConnectedInboxWithOverview, index: number) => {
               return (
                 <InboxWithOverView
                   key={index}
@@ -163,7 +173,7 @@ export function InboxList() {
         nonConnectedUsers &&
         nonConnectedUsers.length >= 1
           ? nonConnectedUsers.map(
-              (user: NonConnectedUserType, index: number) => {
+              (user: NonConnectedInboxWithOverviewType, index: number) => {
                 return <InboxWithOverView key={index} user={user} />;
               }
             )

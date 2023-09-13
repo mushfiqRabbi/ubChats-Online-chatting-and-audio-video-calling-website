@@ -29,8 +29,11 @@ const ioServer = new Server(server, {
   },
 });
 
+const port = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
 const mongoose = require("mongoose");
 
@@ -128,6 +131,6 @@ app.get("/api/users/non_connected_users/:email", async (req, res) => {
 //   });
 // });
 
-server.listen(3000, () => {
-  console.log("listening on port 3000");
+server.listen(port, () => {
+  console.log(`listening on port ${port}`);
 });

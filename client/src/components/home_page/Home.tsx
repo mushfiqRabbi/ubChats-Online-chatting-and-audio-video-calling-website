@@ -28,9 +28,9 @@ export default function Home() {
       socket.auth = { email: user.email };
       socket.connect();
       socket.on("new-message", (message) => {
-        if (selectedInbox) {
+        if (selectedInbox && "inboxId" in selectedInbox) {
           queryClient.setQueriesData(
-            ["api", "messages", selectedInbox?.inboxId],
+            ["api", "messages", selectedInbox.inboxId],
             (messages: any) => {
               return [...messages, message];
             }
@@ -74,7 +74,11 @@ export default function Home() {
         );
       });
       socket.on("user-typing", (inboxId) => {
-        if (selectedInbox?.inboxId === inboxId) {
+        if (
+          selectedInbox &&
+          "inboxId" in selectedInbox &&
+          selectedInbox?.inboxId === inboxId
+        ) {
           queryClient.setQueryData(
             ["api", "inbox_list_with_overview", user?.email],
             (inboxes: any) => {
@@ -92,7 +96,11 @@ export default function Home() {
         }
       });
       socket.on("user-not-typing", (inboxId) => {
-        if (selectedInbox?.inboxId === inboxId) {
+        if (
+          selectedInbox &&
+          "inboxId" in selectedInbox &&
+          selectedInbox?.inboxId === inboxId
+        ) {
           queryClient.setQueryData(
             ["api", "inbox_list_with_overview", user?.email],
             (inboxes: any) => {

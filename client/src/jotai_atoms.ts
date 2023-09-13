@@ -1,9 +1,12 @@
 import { atom } from "jotai";
-import { InboxWithOverViewType, NonConnectedUserType } from "./types";
+import {
+  ConnectedInboxWithOverview,
+  NonConnectedInboxWithOverviewType,
+} from "./types";
 import { Socket } from "socket.io-client";
 
 export const selectedInboxAtom = atom<
-  InboxWithOverViewType | NonConnectedUserType | null
+  ConnectedInboxWithOverview | NonConnectedInboxWithOverviewType | null
 >(null);
 
 export const messageAtom = atom<string>("");
@@ -12,7 +15,7 @@ export const searchTermAtom = atom<HTMLInputElement | null>(null);
 
 export const isSearchListAtom = atom<boolean>(false);
 
-export const connectedInboxesAtom = atom<InboxWithOverViewType[]>([]);
+export const connectedInboxesAtom = atom<ConnectedInboxWithOverview[]>([]);
 
 export const searchNonConnectedUsersAtom = atom<boolean>(false);
 
