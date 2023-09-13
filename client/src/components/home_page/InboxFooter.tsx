@@ -39,6 +39,13 @@ export function InboxFooter() {
         }
       );
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries([
+        "api",
+        "inbox_list_with_overview",
+        user?.email,
+      ]);
+    },
   });
   const inboxListMutation = useMutation({
     mutationFn: createInbox,
@@ -48,7 +55,15 @@ export function InboxFooter() {
     },
   });
 
-  const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMessageChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    if (event.key === "Enter") {
+      if (!event.getModifierState("Shift")) {
+        event.preventDefault();
+        return handleSend();
+      }
+    }
     setMessage(event.target.value);
     if (event.target.value) {
       if (tt) {
@@ -79,9 +94,9 @@ export function InboxFooter() {
         _id: selectedInbox?.inboxId,
         sender: user?.email,
         message: message,
-        data: Date.now().toString(),
+        data: Date.now(),
       });
-
+      // console.log(Date.now());
       setMessage("");
     } else if (user?.email && message !== "") {
       const inbox = await inboxListMutation.mutateAsync({
@@ -105,22 +120,38 @@ export function InboxFooter() {
       }
       setIsSearchList(false);
       setSearchNonConnectedUsers(false);
-      queryClient.invalidateQueries({
-        queryKey: ["api", "inbox_list_with_overview", user?.email],
-      });
+      queryClient.invalidateQueries([
+        "api",
+        "inbox_list_with_overview",
+        user?.email,
+      ]);
     }
   };
   return (
     <div className="flex-grow-0 px-4 py-3 border-top">
       <div className="input-group">
-        <input
-          type="text"
-          className="form-control"
+        <textarea
+          type=""
+          className="form-control "
+          style={{
+            resize: "none",
+            borderRadius: "5px 0 0 5px",
+          }}
           placeholder="Type your message"
           value={message}
           onChange={handleMessageChange}
+          tabIndex={0}
+          onKeyDown={handleMessageChange}
+          rows={1}
         />
-        <button className="btn btn-primary" onClick={handleSend}>
+        <button
+          className="btn btn-primary"
+          tabIndex={0}
+          onClick={handleSend}
+          style={{
+            borderRadius: "0 5px 5px 0",
+          }}
+        >
           Send
         </button>
       </div>

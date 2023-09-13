@@ -5,6 +5,10 @@ import { useQuery } from "react-query";
 import { useAuthUser } from "@react-query-firebase/auth";
 import { getInboxListWithOverView } from "../../controllers/query_controllers/inboxController";
 import auth from "../../firebase/firebaseConfig";
+import { toast } from "react-toastify";
+
+import { BiPhoneCall } from "react-icons/bi";
+import { AiOutlineVideoCamera } from "react-icons/ai";
 
 let status;
 
@@ -21,20 +25,45 @@ export function InboxHeader() {
     status = inboxListWithOverView.find(
       (inboxWithOverview) =>
         inboxWithOverview.userEmail === selectedInbox?.userEmail
-    ).status;
+    )?.status;
   }
 
+  const handleAudioCall = () => {
+    toast.info("Feature coming soon!");
+  };
+
+  const handleVideoCall = () => {
+    toast.info("Feature coming soon!");
+  };
   return (
-    <div className="px-4 py-2 border-bottom d-none d-lg-block">
+    <div className="py-2 border-bottom d-block px-md-4">
       <div className="py-1 d-flex align-items-center">
         <div className="position-relative">
-          <img
+          {/* <img
             src="https://bootdey.com/img/Content/avatar/avatar3.png"
             className="mr-1 rounded-circle"
             alt="Sharon Lessman"
             width={40}
             height={40}
-          />
+          /> */}
+          <div
+            className="rounded-circle bg-secondary d-flex justify-content-center align-items-center "
+            style={{
+              height: "50px",
+              width: "50px",
+            }}
+          >
+            <p
+              className="m-0"
+              style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              {selectedInbox && selectedInbox.userDisplayName[0].toUpperCase()}
+            </p>
+          </div>
         </div>
         <div className="pl-3 flex-grow-1">
           <strong>{selectedInbox && selectedInbox.userDisplayName}</strong>
@@ -58,57 +87,43 @@ export function InboxHeader() {
             </div>
           </div>
         </div>
-        <div>
-          <button className="px-3 mr-1 btn btn-primary btn-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={24}
-              height={24}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="feather feather-phone feather-lg"
-            >
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
+        <div
+          className="d-flex"
+          style={{
+            gap: "10px",
+          }}
+        >
+          <button
+            className="rounded bg-primary"
+            style={{
+              border: "0",
+              padding: "10px 15px",
+              color: "white",
+            }}
+            onClick={handleAudioCall}
+          >
+            <BiPhoneCall
+              style={{
+                height: "25px",
+                width: "25px",
+              }}
+            />
           </button>
-          <button className="px-3 mr-1 btn btn-info btn-lg d-none d-md-inline-block">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={24}
-              height={24}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="feather feather-video feather-lg"
-            >
-              <polygon points="23 7 16 12 23 17 23 7" />
-              <rect x={1} y={5} width={15} height={14} rx={2} ry={2} />
-            </svg>
-          </button>
-          <button className="px-3 border btn btn-light btn-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={24}
-              height={24}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="feather feather-more-horizontal feather-lg"
-            >
-              <circle cx={12} cy={12} r={1} />
-              <circle cx={19} cy={12} r={1} />
-              <circle cx={5} cy={12} r={1} />
-            </svg>
+          <button
+            className="rounded bg-info"
+            style={{
+              border: "0",
+              padding: "10px 15px",
+              color: "white",
+            }}
+            onClick={handleVideoCall}
+          >
+            <AiOutlineVideoCamera
+              style={{
+                height: "25px",
+                width: "25px",
+              }}
+            />
           </button>
         </div>
       </div>

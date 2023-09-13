@@ -46,3 +46,34 @@ body {
 .border-top {
   border-top: 1px solid #dee2e6 !important;
 }
+
+.home-menu-button {
+  position: relative;
+}
+
+.home-menu-button ul {
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 100%;
+  transform: translateX(-100%);
+  background-color: rgba(169, 169, 169, 0.3);
+}
+
+.home-menu-button:hover ul {
+  display: block;
+  /* background-color: rgb(241, 51, 89); */
+}
+.home-menu-button li {
+  background-color: white;
+  color: black;
+}
+
+.home-menu-button li:hover {
+  background-color: crimson;
+  color: white;
+}

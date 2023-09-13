@@ -1,7 +1,7 @@
 import { InboxList } from "./InboxList";
 import InboxContent from "./InboxContent";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthUser } from "@react-query-firebase/auth";
 import auth from "../../firebase/firebaseConfig";
 import "./Home.css";
@@ -10,10 +10,18 @@ import { useAtom } from "jotai";
 import { selectedInboxAtom } from "../../jotai_atoms";
 import socket from "../../utils/socket";
 
+import { BsArrowLeftCircle } from "react-icons/bs";
+import { AiOutlineMenu } from "react-icons/ai";
+
+import { useAuthSignOut } from "@react-query-firebase/auth";
+
 export default function Home() {
+  const signOutMutation = useAuthSignOut(auth);
   const queryClient = useQueryClient();
   const { data: user } = useAuthUser(["user"], auth);
   const [selectedInbox, setSelectedInbox] = useAtom(selectedInboxAtom);
+
+  const [isHover, setIsHover] = useState(false);
 
   useEffect(() => {
     if (socket && user) {
@@ -112,6 +120,23 @@ export default function Home() {
     };
   }, [queryClient, selectedInbox, user]);
 
+  const handleBack = () => {
+    setSelectedInbox(null);
+  };
+
+  const handleMouseEnter = () => {
+    setIsHover(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHover(false);
+  };
+
+  const handleLogout = (event: React.MouseEvent<HTMLLIElement>) => {
+    event.preventDefault();
+    signOutMutation.mutate();
+  };
+
   return (
     <HelmetProvider>
       <main className="content">
@@ -137,8 +162,45 @@ export default function Home() {
             rel="stylesheet"
           />
         </Helmet>
-        <div className="container p-1 vh-100 d-flex flex-column">
-          <h1 className="mb-3 h3">Messages</h1>
+        <div className="container-md p-1 vh-100 d-flex flex-column">
+          <div className="d-flex align-items-center p-2">
+            <button
+              className={`m-0 p-0 rounded-circle border-0 d-md-none ${
+                isHover && isHover ? "text-primary shadow" : ""
+              } ${selectedInbox && selectedInbox ? "" : "d-none"}`}
+              onClick={handleBack}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <BsArrowLeftCircle
+                style={{
+                  height: "30px",
+                  width: "30px",
+                }}
+              />
+            </button>
+            <h1 className="m-0 text-center flex-grow-1">Messages</h1>
+            <button className="border-0 bg-transparent home-menu-button">
+              <AiOutlineMenu
+                style={{
+                  height: "25px",
+                  width: "25px",
+                }}
+              />
+              <ul className="p-1 rounded">
+                <li
+                  className="px-4 py-2 rounded"
+                  style={{
+                    fontWeight: "bold",
+                    // backgroundColor: "rgb(241, 51, 89)",
+                  }}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </li>
+              </ul>
+            </button>
+          </div>
           <div className="card overflow-hidden flex-grow-1">
             <div className="d-flex g-0 flex-grow-1 overflow-hidden">
               <InboxList />

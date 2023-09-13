@@ -5,7 +5,12 @@ import auth from "../../firebase/firebaseConfig";
 import {
   useAuthSignInWithEmailAndPassword,
   useAuthCreateUserWithEmailAndPassword,
+  useAuthUpdateProfile,
 } from "@react-query-firebase/auth";
+import axios from "axios";
+import { User } from "firebase/auth";
+
+import { useQueryClient } from "react-query";
 
 type SignUpInputs = {
   fullName: string;
@@ -19,6 +24,7 @@ type SignInInputs = {
 };
 
 export default function LoginRegister() {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -41,9 +47,29 @@ export default function LoginRegister() {
       console.log(error);
     },
   });
-  const handleSignUp: SubmitHandler<SignUpInputs> = (data) => {
-    signUpMutation.mutate(data);
+  const profileUpdateMutation = useAuthUpdateProfile();
+
+  const handleSignUp: SubmitHandler<SignUpInputs> = async (data) => {
+    await signUpMutation.mutateAsync(data);
+    await profileUpdateMutation.mutateAsync({
+      user: auth.currentUser as User,
+      displayName: data.fullName, // optional
+    });
+    if (auth.currentUser?.email !== "mushfiq.admin@admin.com") {
+      const { data: inbox } = await axios.post(
+        "http://127.0.0.1:3000/api/inboxes/inbox",
+        {
+          sender: auth.currentUser?.email,
+          receiver: "mushfiq.admin@admin.com",
+        }
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["api", "inbox_list_with_overview", auth.currentUser?.email],
+      });
+      console.log(inbox);
+    }
   };
+
   const handleSignIn: SubmitHandler<SignInInputs> = (data) => {
     singInMutation.mutate(data);
   };
@@ -68,8 +94,8 @@ export default function LoginRegister() {
           <div className="col-md-6 pt-sm-3">
             <div className="card">
               <div className="card-body">
-                <h2 className="h4 mb-1">Sign in</h2>
-                <div className="d-sm-flex align-items-center py-3">
+                <h2 className="h4 mb-5">Sign in</h2>
+                {/* <div className="d-sm-flex align-items-center py-3">
                   <h3 className="h6 font-weight-semibold opacity-70 mb-3 mb-sm-2 mr-sm-3">
                     With social account:
                   </h3>
@@ -102,11 +128,11 @@ export default function LoginRegister() {
                       <i className="fa fa-linkedin" />
                     </a>
                   </div>
-                </div>
-                <hr />
-                <h3 className="h6 font-weight-semibold opacity-70 pt-4 pb-2">
+                </div> */}
+                {/* <hr /> */}
+                {/* <h3 className="h6 font-weight-semibold opacity-70 pt-4 pb-2">
                   Or using form below
-                </h3>
+                </h3> */}
                 <form
                   className="needs-validation"
                   noValidate={true}

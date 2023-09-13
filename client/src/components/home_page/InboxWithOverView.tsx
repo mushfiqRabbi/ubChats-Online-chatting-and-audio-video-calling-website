@@ -25,17 +25,40 @@ export function InboxWithOverView({
   return (
     <div
       className="border-0 list-group-item list-group-item-action"
+      style={{
+        cursor: "pointer",
+      }}
       onClick={handleClick}
     >
       {/* <div className="float-right badge bg-success">5</div> */}
       <div className="d-flex align-items-start">
-        <img
+        {/* <img
           src="https://bootdey.com/img/Content/avatar/avatar5.png"
           className="mr-1 rounded-circle"
           alt="Vanessa Tucker"
           width={40}
           height={40}
-        />
+        /> */}
+        <div
+          className="rounded-circle bg-secondary d-flex justify-content-center align-items-center "
+          style={{
+            height: "50px",
+            width: "50px",
+          }}
+        >
+          <p
+            className="m-0"
+            style={{
+              fontSize: "24px",
+              fontWeight: "bold",
+              color: "white",
+            }}
+          >
+            {inboxWithOverView
+              ? inboxWithOverView?.userDisplayName[0].toUpperCase()
+              : user?.userDisplayName[0].toUpperCase()}
+          </p>
+        </div>
         <div className="ml-3 flex-grow-1">
           {inboxWithOverView
             ? inboxWithOverView?.userDisplayName
@@ -44,7 +67,7 @@ export function InboxWithOverView({
             <div className="d-flex align-items-center" style={{ gap: "4px" }}>
               <FaCircle
                 color={`${
-                  inboxWithOverView && inboxWithOverView.status
+                  inboxWithOverView && inboxWithOverView?.status
                     ? "green"
                     : "red"
                 }`}

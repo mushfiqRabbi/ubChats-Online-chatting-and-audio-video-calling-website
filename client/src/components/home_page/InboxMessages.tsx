@@ -52,15 +52,39 @@ export function InboxMessages() {
                   key={index}
                 >
                   <div>
-                    <img
+                    {/* <img
                       src="https://bootdey.com/img/Content/avatar/avatar1.png"
                       className="mr-1 rounded-circle"
                       alt="Chris Wood"
                       width={40}
                       height={40}
-                    />
+                    /> */}
+                    <div
+                      className="rounded-circle bg-secondary d-flex justify-content-center align-items-center "
+                      style={{
+                        height: "50px",
+                        width: "50px",
+                      }}
+                    >
+                      <p
+                        className="m-0"
+                        style={{
+                          fontSize: "24px",
+                          fontWeight: "bold",
+                          color: "white",
+                        }}
+                      >
+                        {message.sender === user?.email
+                          ? "ME"
+                          : selectedInbox &&
+                            selectedInbox.userDisplayName[0].toUpperCase()}
+                      </p>
+                    </div>
                     <div className="mt-2 text-muted small text-nowrap">
-                      2:33 am
+                      {new Date(message.data).toLocaleTimeString("en-BD", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
                     </div>
                   </div>
                   <div className="px-3 py-2 mr-3 rounded flex-shrink-1 bg-light">

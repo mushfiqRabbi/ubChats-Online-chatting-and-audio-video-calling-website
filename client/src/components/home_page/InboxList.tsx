@@ -14,6 +14,7 @@ import {
   isSearchListAtom,
   connectedInboxesAtom,
   searchNonConnectedUsersAtom,
+  selectedInboxAtom,
 } from "../../jotai_atoms";
 import { useRef, useEffect } from "react";
 import { NonConnectedUserType } from "../../types";
@@ -25,6 +26,7 @@ export function InboxList() {
   const [searchNonConnectedUsers, setSearchNonConnectedUsers] = useAtom(
     searchNonConnectedUsersAtom
   );
+  const [selectedInbox] = useAtom(selectedInboxAtom);
   const [connectedInboxes, setConnectedInboxes] = useAtom(connectedInboxesAtom);
   const searchTermRef = useRef<HTMLInputElement>(null);
   const { data: inboxListWithOverView } = useQuery({
@@ -80,7 +82,11 @@ export function InboxList() {
   }, []);
 
   return (
-    <div className="col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto">
+    <div
+      className={`col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto  d-md-block flex-column ${
+        selectedInbox && selectedInbox ? "d-none" : "d-flex"
+      }`}
+    >
       <div
         className="d-block position-absolute bg-white px-4"
         style={{
@@ -118,22 +124,27 @@ export function InboxList() {
         </div>
       </div>
       <div
+        className="flex-grow-1  flex-grow-md-0"
         style={{
           paddingTop: "70px",
         }}
       >
         {!isSearchList &&
           inboxListWithOverView &&
-          inboxListWithOverView.map(
-            (inboxWithOverView: InboxWithOverViewType, index: number) => {
+          inboxListWithOverView
+            .sort((a: InboxWithOverViewType, b: InboxWithOverViewType) => {
+              return (
+                Date.parse(b.lastMessageDate) - Date.parse(a.lastMessageDate)
+              );
+            })
+            .map((inboxWithOverView: InboxWithOverViewType, index: number) => {
               return (
                 <InboxWithOverView
                   key={index}
                   inboxWithOverView={inboxWithOverView}
                 />
               );
-            }
-          )}
+            })}
         {isSearchList &&
           connectedInboxes &&
           connectedInboxes.length >= 1 &&
