@@ -100,7 +100,7 @@ export function InboxList() {
             <input
               type="text"
               className="my-3 form-control"
-              placeholder="Search..."
+              placeholder="Search By Email"
               style={{
                 borderTopRightRadius: "0",
                 borderBottomRightRadius: "0",

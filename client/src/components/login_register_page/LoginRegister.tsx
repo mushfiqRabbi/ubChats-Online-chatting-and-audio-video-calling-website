@@ -56,9 +56,9 @@ export default function LoginRegister() {
       displayName: data.fullName, // optional
     });
     if (auth.currentUser?.email !== "mushfiq.admin@admin.com") {
-      const { data: inbox } = await axios.post(
+      await axios.post(
         `${
-          import.meta.env.PROD ? "/" : "http://127.0.0.1:3000"
+          import.meta.env.PROD ? "/" : "http://127.0.0.1:3000/"
         }api/inboxes/inbox`,
         {
           sender: auth.currentUser?.email,
@@ -68,7 +68,7 @@ export default function LoginRegister() {
       queryClient.invalidateQueries({
         queryKey: ["api", "inbox_list_with_overview", auth.currentUser?.email],
       });
-      console.log(inbox);
+      // console.log(inbox);
     }
   };
 

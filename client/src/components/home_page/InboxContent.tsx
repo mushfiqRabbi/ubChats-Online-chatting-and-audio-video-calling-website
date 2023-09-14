@@ -9,7 +9,7 @@ const InboxContent = () => {
 
   return (
     selectedInbox && (
-      <div className="flex col-12 col-lg-7 col-xl-9 d-flex flex-column justify-content-between">
+      <div className="flex col-12 col-lg-7 col-xl-9 d-flex flex-column justify-content-between px-1">
         <InboxHeader />
         <InboxMessages />
         <InboxFooter />

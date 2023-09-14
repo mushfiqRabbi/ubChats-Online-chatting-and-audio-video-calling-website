@@ -147,6 +147,7 @@ export default function Home() {
   const handleLogout = (event: React.MouseEvent<HTMLLIElement>) => {
     event.preventDefault();
     signOutMutation.mutate();
+    setSelectedInbox(null);
   };
 
   return (
@@ -174,7 +175,12 @@ export default function Home() {
             rel="stylesheet"
           />
         </Helmet>
-        <div className="container-md p-1 vh-100 d-flex flex-column">
+        <div
+          className="container-md p-1  d-flex flex-column"
+          style={{
+            height: "100dvh",
+          }}
+        >
           <div className="d-flex align-items-center p-2">
             <button
               className={`m-0 p-0 rounded-circle border-0 d-md-none ${

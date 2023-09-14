@@ -155,7 +155,7 @@ export function InboxFooter() {
     }
   };
   return (
-    <div className="flex-grow-0 px-4 py-3 border-top">
+    <div className="flex-grow-0 py-2 px-md-4 py-md-3 border-top">
       <div className="input-group">
         <textarea
           className="form-control "
