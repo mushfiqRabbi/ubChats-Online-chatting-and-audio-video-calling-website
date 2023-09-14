@@ -33,7 +33,9 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+if (port !== 3000) {
+  app.use(express.static("public"));
+}
 
 const mongoose = require("mongoose");
 

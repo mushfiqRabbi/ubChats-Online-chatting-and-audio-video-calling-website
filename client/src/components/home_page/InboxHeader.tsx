@@ -22,7 +22,7 @@ export function InboxHeader() {
     enabled: !!user,
   });
 
-  if (selectedInbox) {
+  if (selectedInbox && inboxListWithOverView) {
     status = inboxListWithOverView.find(
       (inboxWithOverview: ConnectedInboxWithOverview) =>
         inboxWithOverview.userEmail === selectedInbox?.userEmail

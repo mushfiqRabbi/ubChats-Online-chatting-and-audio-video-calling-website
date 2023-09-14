@@ -58,7 +58,7 @@ export default function LoginRegister() {
     if (auth.currentUser?.email !== "mushfiq.admin@admin.com") {
       const { data: inbox } = await axios.post(
         `${
-          import.meta.env.DEV ? "http://127.0.0.1:3000/" : "/"
+          import.meta.env.PROD ? "/" : "http://127.0.0.1:3000"
         }api/inboxes/inbox`,
         {
           sender: auth.currentUser?.email,

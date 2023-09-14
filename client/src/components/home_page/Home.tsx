@@ -28,7 +28,11 @@ export default function Home() {
       socket.auth = { email: user.email };
       socket.connect();
       socket.on("new-message", (message) => {
-        if (selectedInbox && "inboxId" in selectedInbox) {
+        if (
+          selectedInbox &&
+          "inboxId" in selectedInbox &&
+          selectedInbox.userEmail === message?.sender
+        ) {
           queryClient.setQueriesData(
             ["api", "messages", selectedInbox.inboxId],
             (messages: any) => {

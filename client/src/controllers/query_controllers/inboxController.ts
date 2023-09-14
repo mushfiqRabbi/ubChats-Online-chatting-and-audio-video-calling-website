@@ -2,7 +2,7 @@ import { QueryFunctionContext } from "react-query";
 import axios from "axios";
 import { MessageType } from "../../types";
 
-const baseUrl = import.meta.env ? "http://127.0.0.1:3000/" : "/";
+const baseUrl = import.meta.env.PROD ? "/" : "http://127.0.0.1:3000/";
 
 export const getInboxListWithOverView = async ({
   queryKey,
