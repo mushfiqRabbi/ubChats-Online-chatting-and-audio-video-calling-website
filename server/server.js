@@ -81,7 +81,11 @@ app.get("/api/inbox_list_with_overview/:email", async (req, res) => {
 app.post("/api/inboxes/inbox", async (req, res) => {
   const inboxWithOverview = await createInbox(req.body);
   const senderSocket = await getSocketByEmail(req.body.sender, ioServer);
-  senderSocket.join(inboxWithOverview.inboxId);
+  try {
+    senderSocket.join(inboxWithOverview.inboxId);
+  } catch (e) {
+    console.log(e.message);
+  }
   res.json(inboxWithOverview);
 });
 

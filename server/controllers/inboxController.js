@@ -66,7 +66,7 @@ const postMessage = async ({ _id, sender, message }) => {
     sender,
   });
   await inbox?.save();
-  return inbox?.messages?.at(-1);
+  return inbox?.messages[inbox.messages.length - 1];
 };
 
 const getReceiverEmail = async (inboxId, senderEmail) => {
