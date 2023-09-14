@@ -176,7 +176,7 @@ export default function Home() {
           />
         </Helmet>
         <div
-          className="container-md p-1  d-flex flex-column"
+          className="container-md p-0 p-md-1  d-flex flex-column"
           style={{
             height: "100dvh",
           }}

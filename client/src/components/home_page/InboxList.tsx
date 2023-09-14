@@ -83,12 +83,12 @@ export function InboxList() {
 
   return (
     <div
-      className={`col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto  d-md-block flex-column ${
+      className={`col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto px-0 px-md-3  d-md-block flex-column ${
         selectedInbox && selectedInbox ? "d-none" : "d-flex"
       }`}
     >
       <div
-        className="d-block position-absolute bg-white px-4"
+        className="d-block position-absolute bg-white px-2 px-md-4"
         style={{
           zIndex: "1",
           width: "100%",

@@ -36,7 +36,7 @@ export function InboxMessages() {
   return (
     <div className="flex-grow-1 overflow-hidden">
       <div
-        className=" p-md-4 chat-messages"
+        className="p-md-4 chat-messages"
         style={{
           height: "100%",
           overflowY: "auto",
