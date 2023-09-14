@@ -27,7 +27,7 @@ export function InboxWithOverView({
   };
   return (
     <div
-      className="border-0 list-group-item list-group-item-action"
+      className="list-group-item list-group-item-action"
       style={{
         cursor: "pointer",
       }}

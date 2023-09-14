@@ -197,7 +197,55 @@ export default function Home() {
                 }}
               />
             </button>
-            <h1 className="m-0 text-center flex-grow-1">Messages</h1>
+            <div
+              className={`d-md-block d-${selectedInbox ? "none" : "block"}`}
+              style={{
+                fontSize: "1rem",
+                fontWeight: "bold",
+              }}
+            >
+              <span
+                style={{
+                  padding: "0 10px",
+                  borderStyle: "solid",
+                  borderWidth: "4px",
+                  borderImage:
+                    "linear-gradient(to right, lightpink, lightblue) 1",
+                }}
+              >
+                <span
+                  style={{
+                    color: "lightblue",
+                  }}
+                >
+                  U
+                </span>
+                <span
+                  style={{
+                    color: "lightpink",
+                  }}
+                >
+                  B
+                </span>
+                <span className="d-inline d-md-none" style={{ opacity: "0.7" }}>
+                  -C
+                </span>
+              </span>
+              <span
+                className="d-none d-md-inline ml-1"
+                style={{
+                  opacity: "0.7",
+                }}
+              >
+                Chats
+              </span>
+            </div>
+            <h1 className="m-0 d-md-none text-center flex-grow-1">
+              {selectedInbox ? "Messages" : "Inbox List"}
+            </h1>
+            <h1 className="m-0 d-none d-md-block text-center flex-grow-1">
+              Messages
+            </h1>
             <button className="border-0 bg-transparent home-menu-button">
               <AiOutlineMenu
                 style={{

@@ -83,7 +83,7 @@ export function InboxList() {
 
   return (
     <div
-      className={`col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto px-0 px-md-3  d-md-block flex-column ${
+      className={`col-12 col-lg-5 col-xl-3 border-right position-relative overflow-auto px-0   d-md-block flex-column ${
         selectedInbox && selectedInbox ? "d-none" : "d-flex"
       }`}
     >
