@@ -52,6 +52,8 @@ Here are some screenshots of the ub-chats Web App:
 
 Check out the live demo of ub-chats at: [ub-chats Live Demo](https://ub-chats.onrender.com/)
 
+:memo: **Note:** You may have to wait a few minutes for the server to start when visiting the website for the first time, as the server on render goes down after 15 minutes of inactivity.
+
 ## Getting Started
 
 To get started with ub-chats, follow these steps:
